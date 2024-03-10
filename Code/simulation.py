@@ -7,6 +7,8 @@ Created on Sat Mar  9 14:49:51 2024
 
 ### This code is used to calculate temperature field of asphalt pavement ###
 
+import os
+import sys
 import openpyxl as xl
 import math
 import numpy
@@ -29,10 +31,8 @@ thickness_Base = 0.076
 thickness_subbase = 0.305
 thickness_subgrade = 3 - thickness_AC - thickness_Base - thickness_subbase  # Total thickness = 3 meters
 
-# FUTURE REFERENCE, THIS SHOULD BE AUTOMATICALLY ASSIGNED TO THE CURRENT WORKING DIRECTORY (whatever file this code was run from within)
-##
-file_path = r"C:\Users\drewm\OneDrive\Desktop\Climate-Responsive Pavement Performance Prediction\CRPPP\Data"
-##
+file_path = os.path.abspath(__file__)
+env_data_path = os.path.dirname(file_path)
 
 row_correction = 0  # shift peak of test to match the peak of simulation, default = 0
 
@@ -65,20 +65,17 @@ alpha_subbase = k_subbase / rho_subbase / cp_subbase * 3600
 alpha_subgrade = k_subgrade / rho_subgrade / cp_subgrade * 3600
 alpha_water = k_water / rho_water / cp_water * 3600
 
-def run_simulation(post_process, Ucode):
+def run_simulation(post_process, Ucode, should_stop = None, solarFile = None, windFile = None, tempFile = None):
     # find environmental data, e.g T_air, from excel
-    env_data_path = file_path
-    env_temp_data_name = Section_ID + '-Temp.xlsx'
-    env_temp_data = xl.load_workbook(env_data_path + "\\" + env_temp_data_name)
+
+    env_temp_data = xl.load_workbook(tempFile)
     temp_sheet = env_temp_data['MERRA_TEMP_HOUR']
 
-
-    env_wind_data_name = Section_ID + '-Wind.xlsx'
-    env_wind_data = xl.load_workbook(env_data_path + "\\" + env_wind_data_name)
+    env_wind_data = xl.load_workbook(windFile)
     wind_sheet = env_wind_data['MERRA_WIND_HOUR']
 
-    env_solar_data_name = Section_ID + '-Solar.xlsx'
-    env_solar_data = xl.load_workbook(env_data_path + "\\" + env_solar_data_name)
+
+    env_solar_data = xl.load_workbook(solarFile)
     solar_sheet = env_solar_data['MERRA_SOLAR_HOUR']
 
 
@@ -124,6 +121,8 @@ def run_simulation(post_process, Ucode):
     sigma = 5.67e-8  # Stefen-Boltzmann constant W/m2/K4
 
     for time in range(1, t_total + 1):  # need to run "t_total+1"  ; test case for 24 hours
+        if should_stop():
+            sys.exit()
         i_flag = 1
         i_iter = 1
 
@@ -162,6 +161,8 @@ def run_simulation(post_process, Ucode):
         v_wind = wind_sheet.cell(time + 1, 4).value  # wind velocity (m/s)
 
         while i_flag == 1 and i_iter <= 200:  # iteration max
+            if should_stop():
+                sys.exit()
 
             # prescript surface boundary condition
 
@@ -182,6 +183,8 @@ def run_simulation(post_process, Ucode):
             #print('T_bott_update:', T_star[N_total + 1])
 
             for N_ele in range(1, N_total + 1):
+                if should_stop():
+                    sys.exit()
 
                 # initialize coefficient matrix a, b, c, d from element 1 to N; # linearization of surface BC
                 if N_ele == 1:
