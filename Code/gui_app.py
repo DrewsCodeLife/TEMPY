@@ -9,9 +9,9 @@ import sys
 import threading
 import queue
 import customtkinter as ctk
-from CTkListbox import *
+from CTkListbox import CTkListbox
 from tkinter import BooleanVar
-from simulation import run_simulation
+from TEMPY import run_simulation
 
 class TopLevelWindow(ctk.CTkToplevel):
     def __init__(self, *args, **kwargs):
@@ -26,8 +26,12 @@ class MainApp(ctk.CTkFrame):
         
         self.after(0, self.setup)
         
+        # For now, we initialize
+        self.thermo_depth = [0, 1]
+        self.depthList = CTkListbox(master = self)
+        
     def setup(self):
-        self.winfo_toplevel().title("CRPPP")
+        self.winfo_toplevel().title("TEMPY")
         
         # Containers for file names, these will be passed to the run_simulation function to handle GUI file assignment
         self.solarFile = None
@@ -41,15 +45,14 @@ class MainApp(ctk.CTkFrame):
         # Identifying the variables as BooleanVar enables connection to GUI, call with .get() to get standard boolean value for use.
         
         self.stop_simulation = False
-        self.thermo_depth = None
 
         ### Beginning of label definitions
 
         self.solarLabel = ctk.CTkLabel(self, text = "Solar Data")
-        self.solarLabel.place(relx = .025, rely = .025, anchor = ctk.CENTER)
+        self.solarLabel.place(relx = .025, rely = .125, anchor = ctk.CENTER)
         
         self.solarFileLabel = ctk.CTkLabel(self, text = "No file...")
-        self.solarFileLabel.place(relx = .15, rely = .025, anchor = "w")
+        self.solarFileLabel.place(relx = .15, rely = .125, anchor = "w")
         
         self.windLabel = ctk.CTkLabel(self, text = "Wind Data")
         self.windLabel.place(relx = .025, rely = .075, anchor = ctk.CENTER)
@@ -58,10 +61,10 @@ class MainApp(ctk.CTkFrame):
         self.windFileLabel.place(relx = .15, rely = .075, anchor = "w")
         
         self.tempLabel = ctk.CTkLabel(self, text = "Temp Data")
-        self.tempLabel.place(relx = .025, rely = .125, anchor = ctk.CENTER)
+        self.tempLabel.place(relx = .025, rely = .025, anchor = ctk.CENTER)
         
         self.tempFileLabel = ctk.CTkLabel(self, text = "No file...")
-        self.tempFileLabel.place(relx = .15, rely = .125, anchor = "w")
+        self.tempFileLabel.place(relx = .15, rely = .025, anchor = "w")
         
         self.depthEntryLabel = ctk.CTkLabel(self, text = "Enter desired depth values")
         self.depthEntryLabel.place(relx = .7, rely = .01725, anchor = ctk.CENTER)
@@ -69,8 +72,7 @@ class MainApp(ctk.CTkFrame):
         ### End of label definitions
         
         ### Beginning of list box definitions
-        
-        self.depthList = CTkListbox(master = self) #### NEED TO ADD A COMMAND TO HAPPEN WHEN ELEMENT IS CLICKED (delete item pop up)
+    
         self.depthList.place(relx = .8, rely = .1, anchor = ctk.CENTER)
         
         ### End of list box definitions
@@ -84,26 +86,29 @@ class MainApp(ctk.CTkFrame):
         self.simButton.place(relx = .5, rely = .5, anchor = ctk.CENTER)
         
         self.solarFileButton = ctk.CTkButton(master = self, text = "Select file...", command = lambda: self.selectfile(0))
-        self.solarFileButton.place(relx = .1, rely = .025, anchor = ctk.CENTER)
+        self.solarFileButton.place(relx = .1, rely = .125, anchor = ctk.CENTER)
         
         self.windFileButton = ctk.CTkButton(master = self, text = "Select file...", command = lambda: self.selectfile(1))
         self.windFileButton.place(relx = .1, rely = .075, anchor = ctk.CENTER)
         
         self.tempFileButton = ctk.CTkButton(master = self, text = "Select file...", command = lambda: self.selectfile(2))
-        self.tempFileButton.place(relx = .1, rely = .125, anchor = ctk.CENTER)
+        self.tempFileButton.place(relx = .1, rely = .025, anchor = ctk.CENTER)
         
         self.depthEntryButton = ctk.CTkButton(master = self, text = "Add", command = self.addDepth)
-        self.depthEntryButton.place(relx = .7, rely = .08, anchor = ctk.CENTER)
+        self.depthEntryButton.place(relx = .7, rely = .082, anchor = ctk.CENTER)
+        
+        self.depthDeleteButton = ctk.CTkButton(master = self, text = "Delete selection", command = self.removeDepth)
+        self.depthDeleteButton.place(relx = .7, rely = .114, anchor = ctk.CENTER)
         
         ### End of button definitions
         
         ### Beginning of input widget definitions
         #### Check boxes
         
-        self.pp_box = ctk.CTkCheckBox(master = self, text = "Post Processing?", variable = self.post_process, onvalue = True, offvalue = False)
+        self.pp_box = ctk.CTkCheckBox(master = self, text = "Post Processing Plot", variable = self.post_process, onvalue = True, offvalue = False)
         self.pp_box.place(relx = .5, rely = .55, anchor = "w")
         
-        self.uc_box = ctk.CTkCheckBox(master = self, text = "Ucode?", variable = self.Ucode, onvalue = True, offvalue = False)
+        self.uc_box = ctk.CTkCheckBox(master = self, text = "Calibration by Ucode", variable = self.Ucode, onvalue = True, offvalue = False)
         self.uc_box.place(relx = .5, rely = .6, anchor = "w")
         
         #### Number entry
@@ -114,10 +119,13 @@ class MainApp(ctk.CTkFrame):
         self.queue = queue.Queue()
     
     def removeDepth(self):
-        # called when user selects a value in the listbox, should generate a pop-up which confirms that the user wants to remove it
-        self.popup = TopLevelWindow(self)
-        self.popup.title("Remove depth")
-        #### NOT FINISHED
+        selected_index = self.depthList.curselection()
+        if selected_index is not None:
+            index = int(selected_index)
+            self.thermo_depth.pop(index)
+            self.update_depthlist()
+        else:
+            print("Nothing selected") ### IN THE FUTURE, ADD POP UP WINDOW TO WARN
     
     def addDepth(self):
         if len(self.thermo_depth) > 10:
@@ -125,9 +133,25 @@ class MainApp(ctk.CTkFrame):
             self.popup = TopLevelWindow(self)
             self.popup.title("Too many depths!")
         else:
-            value = float(self.depthEntry.get())
-            self.thermo_depth.append(value)
-            self.depthEntry.delete(0, ctk.END)
+            try:
+                value = float(self.depthEntry.get())
+                self.thermo_depth.append(value)
+            except ValueError:
+                self.popup = TopLevelWindow(self)
+                self.popup.title("Invalid selection!")
+
+                self.popup.warningMessage = ctk.CTkLabel(master = self.popup,
+                                                         text = "Oops! You tried to enter an invalid value for the depth list. Ensure all depth values are entered as numeric",
+                                                         wraplength=300, justify="center")
+                self.popup.warningMessage.place(relx = .5, rely = .5, anchor = ctk.CENTER)
+                
+                self.popup.exitPopup = ctk.CTkButton(master = self.popup, text = "Close pop-up window", command = lambda: self.closePopup(self.popup))
+                self.popup.exitPopup.place(relx = .5, rely = .7, anchor = ctk.CENTER)
+                
+                self.popup.update()
+            # except value > max depth
+            ### ADD EXCEPTION
+        self.update_depthlist()
     
     def stopSim(self, popup):
         self.stop_simulation = True
@@ -152,7 +176,11 @@ class MainApp(ctk.CTkFrame):
         solarFile = self.solarFile
         windFile = self.windFile
         tempFile = self.tempFile
-        run_simulation(self.post_process.get(), self.Ucode.get(), should_stop=lambda: self.stop_simulation, solarFile = solarFile, windFile = windFile, tempFile = tempFile)
+        run_simulation(self.post_process.get(), self.Ucode.get(), # Check boxes, if these are true than we run post processing and Ucode calibration respectively
+                       should_stop=lambda: self.stop_simulation,  # If true, the user requested to end the simulation early, passing with lambda enables real-time changes
+                       solarFile = solarFile, windFile = windFile, tempFile = tempFile, # File paths for the data
+                       Thermo_depth=self.thermo_depth) # Share the current thermo_depth list with the function
+        
         self.queue.put("Simulation Finished")
         
     def check_queue(self):
@@ -192,13 +220,23 @@ class MainApp(ctk.CTkFrame):
                 self.tempFile = ctk.filedialog.askopenfilename()
                 self.tempFileLabel.configure(text = self.tempFile)
 
-    
+    def update_depthlist(self):
+        # Clear the listbox
+        self.depthList.delete("all")
+        # Repopulate with the values in thermo_depth
+        for depth in self.thermo_depth:
+            self.depthList.insert(ctk.END, depth)
+        
+def main():
+    # Populate the values in our depth list
+    app.update_depthlist()
+
+    root.mainloop()
+
 if __name__ == "__main__":
-    
     root = ctk.CTk()
     root.geometry("1600x900")
-    MainApp(root).pack(side = "top", fill = "both", expand = True)
+    app = MainApp(root)
+    app.pack(side = "top", fill = "both", expand = True)
     
-
-    
-    root.mainloop()
+    main()
