@@ -115,7 +115,7 @@ def run_simulation(post_process, Ucode, should_stop = None, solarFile = None, wi
     sigma = 5.67e-8  # Stefen-Boltzmann constant W/m2/K4
 
     for time in range(1, t_total + 1):  # need to run "t_total+1"  ; test case for 24 hours
-        if should_stop():
+        if should_stop:
             sys.exit()
         i_flag = 1
         i_iter = 1
@@ -155,7 +155,7 @@ def run_simulation(post_process, Ucode, should_stop = None, solarFile = None, wi
         v_wind = wind_sheet.cell(time + 1, 4).value  # wind velocity (m/s)
 
         while i_flag == 1 and i_iter <= 200:  # iteration max
-            if should_stop():
+            if should_stop:
                 sys.exit()
 
             # prescript surface boundary condition
@@ -177,7 +177,7 @@ def run_simulation(post_process, Ucode, should_stop = None, solarFile = None, wi
             #print('T_bott_update:', T_star[N_total + 1])
 
             for N_ele in range(1, N_total + 1):
-                if should_stop():
+                if should_stop:
                     sys.exit()
 
                 # initialize coefficient matrix a, b, c, d from element 1 to N; # linearization of surface BC
