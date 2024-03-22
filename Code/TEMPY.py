@@ -12,6 +12,7 @@ import sys
 import openpyxl as xl
 import math
 import numpy
+import shared
 import matplotlib.pyplot as plt
 #from scipy import stats
 from sklearn.linear_model import LinearRegression
@@ -19,12 +20,6 @@ import pandas as pd
 from datetime import datetime
 
 Section_ID = '04-0113'
-
-# Define Pavement Thickness, unit meters; # 48-1068: 0.278; 0.152; 0.203;
-thickness_AC = 0.102
-thickness_Base = 0.076
-thickness_subbase = 0.305
-thickness_subgrade = 3 - thickness_AC - thickness_Base - thickness_subbase  # Total thickness = 3 meters
 
 file_path = os.path.abspath(__file__)
 env_data_path = os.path.dirname(file_path)
@@ -60,7 +55,8 @@ alpha_subbase = k_subbase / rho_subbase / cp_subbase * 3600
 alpha_subgrade = k_subgrade / rho_subgrade / cp_subgrade * 3600
 alpha_water = k_water / rho_water / cp_water * 3600
 
-def run_simulation(post_process, Ucode, should_stop = None, solarFile = None, windFile = None, tempFile = None, Thermo_depth = []):
+def run_simulation(post_process, Ucode, solarFile = None, windFile = None, tempFile = None, Thermo_depth = [],
+                   thickness_AC = 0, thickness_Base = 0, thickness_subbase = 0, thickness_subgrade = 0):
     # find environmental data, e.g T_air, from excel
 
     env_temp_data = xl.load_workbook(tempFile)
@@ -115,8 +111,10 @@ def run_simulation(post_process, Ucode, should_stop = None, solarFile = None, wi
     sigma = 5.67e-8  # Stefen-Boltzmann constant W/m2/K4
 
     for time in range(1, t_total + 1):  # need to run "t_total+1"  ; test case for 24 hours
-        if should_stop:
-            sys.exit()
+        # End Early Condition
+        if (shared.endEarly.is_set()):
+            sys.exit()   
+    
         i_flag = 1
         i_iter = 1
 
@@ -155,7 +153,8 @@ def run_simulation(post_process, Ucode, should_stop = None, solarFile = None, wi
         v_wind = wind_sheet.cell(time + 1, 4).value  # wind velocity (m/s)
 
         while i_flag == 1 and i_iter <= 200:  # iteration max
-            if should_stop:
+            # End Early Condition
+            if (shared.endEarly.is_set()):
                 sys.exit()
 
             # prescript surface boundary condition
@@ -177,7 +176,8 @@ def run_simulation(post_process, Ucode, should_stop = None, solarFile = None, wi
             #print('T_bott_update:', T_star[N_total + 1])
 
             for N_ele in range(1, N_total + 1):
-                if should_stop:
+                # End Early Condition
+                if (shared.endEarly.is_set()):
                     sys.exit()
 
                 # initialize coefficient matrix a, b, c, d from element 1 to N; # linearization of surface BC
@@ -286,6 +286,10 @@ def run_simulation(post_process, Ucode, should_stop = None, solarFile = None, wi
             error_T = 0
             for N_ele in range(0, N_total + 2):
                 error_T += abs(T_star[N_ele] - T[N_ele, time]) ** 2
+            
+            # End Early Condition
+            if (shared.endEarly.is_set()):
+                sys.exit()
 
             #print(error_T)
 
@@ -356,13 +360,13 @@ def run_simulation(post_process, Ucode, should_stop = None, solarFile = None, wi
     wb_result.save(results_path + results_name)
     
     if (post_process == True):
-        post_processing()
+        post_processing(Thermo_depth)
     if (Ucode == True):
-        uCode()
+        uCode(Thermo_depth)
         
     print("Simulation Complete")
    
-def post_processing():
+def post_processing(Thermo_depth = []):
     # input temperature file
     env_data_path = file_path
 
@@ -603,7 +607,7 @@ def post_processing():
     print('R2=', R2)
     print('Slope=',a)
     
-def uCode():
+def uCode(Thermo_depth = []):
     results_path = file_path
     results_name = "\\" + Section_ID + '-Simulation.xlsx'
     Sim_data = xl.load_workbook(results_path + results_name)
