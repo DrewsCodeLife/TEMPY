@@ -1,2 +1,0 @@
-This folder exists for testing minimal-examples of errors
-    that occur to hasten and improve the bug fixing problem.

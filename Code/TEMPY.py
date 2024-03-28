@@ -7,7 +7,6 @@ Created on Sat Mar  9 14:49:51 2024
 
 ### This code is used to calculate temperature field of asphalt pavement ###
 
-import os
 import sys
 import openpyxl as xl
 import math
@@ -18,11 +17,6 @@ import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 import pandas as pd
 from datetime import datetime
-
-Section_ID = '04-0113'
-
-file_path = os.path.abspath(__file__)
-env_data_path = os.path.dirname(file_path)
 
 row_correction = 0  # shift peak of test to match the peak of simulation, default = 0
 
@@ -310,9 +304,9 @@ def run_simulation(post_process, Ucode, solarFile = None, windFile = None, tempF
             # print(T_star)
             
     # print out the results and save in excel
-    results_path = env_data_path
+    results_path = shared.proj_folder_long
 
-    results_name = "\\" + Section_ID + '-Simulation.xlsx'
+    results_name = "\\" + shared.proj_name + '-Simulation.xlsx'
 
     try:
         wb_result = xl.load_workbook(results_path + results_name)
@@ -367,15 +361,12 @@ def run_simulation(post_process, Ucode, solarFile = None, windFile = None, tempF
     print("Simulation Complete")
    
 def post_processing(Thermo_depth = []):
-    # input temperature file
-    env_data_path = file_path
+    results_path = shared.proj_folder_long
 
-    results_path = env_data_path
+    results_name = "\\" + shared.proj_name + '-Simulation.xlsx'
 
-    results_name = "\\" + Section_ID + '-Simulation.xlsx'
-
-    Test_data_path = env_data_path
-    Test_data_name = Section_ID + '-Raw.xlsx'
+    Test_data_path = shared.proj_folder_long
+    Test_data_name = shared.proj_name + '-Raw.xlsx'
     Test_data = xl.load_workbook(Test_data_path + "\\" + Test_data_name)
     Data_sheet = Test_data['Sheet1']
     Max_Row_Data = Data_sheet.max_row
@@ -504,9 +495,9 @@ def post_processing(Thermo_depth = []):
     Sim_data.save(results_path + results_name)
 
     # error calculation
-    results_path = file_path
+    results_path = shared.proj_folder_long
 
-    results_name = "\\" + Section_ID + '-Simulation.xlsx'
+    results_name = "\\" + shared.proj_name + '-Simulation.xlsx'
 
     Sim_data = xl.load_workbook(results_path + results_name)
     Sim_result = Sim_data['Sheet1']
@@ -608,13 +599,13 @@ def post_processing(Thermo_depth = []):
     print('Slope=',a)
     
 def uCode(Thermo_depth = []):
-    results_path = file_path
-    results_name = "\\" + Section_ID + '-Simulation.xlsx'
+    results_path = shared.proj_folder_long
+    results_name = "\\" + shared.proj_name + '-Simulation.xlsx'
     Sim_data = xl.load_workbook(results_path + results_name)
     Sim_result = Sim_data['Sheet1']
 
-    Ucode_path = file_path
-    Ucode_name = "\\" + Section_ID + '-Ucode.xlsx'
+    Ucode_path = shared.proj_folder_long
+    Ucode_name = "\\" + shared.proj_name + '-Ucode.xlsx'
 
     try:
         Ucode_result = xl.load_workbook(Ucode_path + Ucode_name)
