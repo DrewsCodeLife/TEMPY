@@ -7,7 +7,6 @@ Created on Sat Mar  9 14:49:51 2024
 
 ### This code is used to calculate temperature field of asphalt pavement ###
 
-import sys
 import openpyxl as xl
 import math
 import numpy
@@ -17,6 +16,8 @@ import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 import pandas as pd
 from datetime import datetime
+
+plt.switch_backend('agg')
 
 row_correction = 0  # shift peak of test to match the peak of simulation, default = 0
 
@@ -107,7 +108,8 @@ def run_simulation(post_process, Ucode, solarFile = None, windFile = None, tempF
     for time in range(1, t_total + 1):  # need to run "t_total+1"  ; test case for 24 hours
         # End Early Condition
         if (shared.endEarly.is_set()):
-            sys.exit()   
+            return 0
+            # sys.exit()   
     
         i_flag = 1
         i_iter = 1
@@ -149,7 +151,8 @@ def run_simulation(post_process, Ucode, solarFile = None, windFile = None, tempF
         while i_flag == 1 and i_iter <= 200:  # iteration max
             # End Early Condition
             if (shared.endEarly.is_set()):
-                sys.exit()
+                return 0
+                # sys.exit()
 
             # prescript surface boundary condition
 
@@ -172,7 +175,8 @@ def run_simulation(post_process, Ucode, solarFile = None, windFile = None, tempF
             for N_ele in range(1, N_total + 1):
                 # End Early Condition
                 if (shared.endEarly.is_set()):
-                    sys.exit()
+                    return 0
+                    # sys.exit()
 
                 # initialize coefficient matrix a, b, c, d from element 1 to N; # linearization of surface BC
                 if N_ele == 1:
@@ -283,7 +287,8 @@ def run_simulation(post_process, Ucode, solarFile = None, windFile = None, tempF
             
             # End Early Condition
             if (shared.endEarly.is_set()):
-                sys.exit()
+                return 0
+                # sys.exit()
 
             #print(error_T)
 
@@ -321,16 +326,20 @@ def run_simulation(post_process, Ucode, solarFile = None, windFile = None, tempF
     ws_Sheet.cell(1, 1).value = "Date"
     ws_Sheet.cell(1, 2).value = "time"
     ws_Sheet.cell(1, 3).value = 'surface'
-    ws_Sheet.cell(1, 4).value = 'Thermo_1'
-    ws_Sheet.cell(1, 5).value = 'Thermo_2'
-    ws_Sheet.cell(1, 6).value = 'Thermo_3'
-    ws_Sheet.cell(1, 7).value = 'Thermo_4'
-    ws_Sheet.cell(1, 8).value = 'Thermo_5'
-    ws_Sheet.cell(1, 9).value = 'Thermo_6'
-    ws_Sheet.cell(1, 10).value = 'Thermo_7'
-    ws_Sheet.cell(1, 11).value = 'Thermo_8'
-    ws_Sheet.cell(1, 12).value = 'Thermo_9'
-    ws_Sheet.cell(1, 13).value = 'Thermo_10'
+    # ws_Sheet.cell(1, 4).value = 'Thermo_1'
+    # ws_Sheet.cell(1, 5).value = 'Thermo_2'
+    # ws_Sheet.cell(1, 6).value = 'Thermo_3'
+    # ws_Sheet.cell(1, 7).value = 'Thermo_4'
+    # ws_Sheet.cell(1, 8).value = 'Thermo_5'
+    # ws_Sheet.cell(1, 9).value = 'Thermo_6'
+    # ws_Sheet.cell(1, 10).value = 'Thermo_7'
+    # ws_Sheet.cell(1, 11).value = 'Thermo_8'
+    # ws_Sheet.cell(1, 12).value = 'Thermo_9'
+    # ws_Sheet.cell(1, 13).value = 'Thermo_10'
+    itr = 4
+    for depth in Thermo_depth:
+        ws_Sheet.cell(1, itr).value = str(depth) + ' m'
+        itr += 1
 
     ws_Sheet.cell(2, 1).value = 0 # Intial time 0
 
