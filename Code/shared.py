@@ -17,6 +17,10 @@ proj_folder_long = os.path.dirname(os.path.abspath(__file__))
 proj_folder_parts = proj_folder_long.split('\\')
 
 if len(proj_folder_parts) > 1:
-    proj_folder = proj_folder_parts[0] + '\\' + proj_folder_parts[1] + "\\...\\" + proj_folder_parts[-1]
+    proj_folder = proj_folder_parts[0] \
+        + '\\' \
+        + proj_folder_parts[1] \
+        + "\\...\\" \
+        + proj_folder_parts[-1]
 else:
-    proj_folder=proj_folder_long
+    proj_folder = proj_folder_long

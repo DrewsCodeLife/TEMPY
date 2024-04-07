@@ -10,15 +10,29 @@ Created on Sat Mar  9 13:59:27 2024
 import sys
 import threading
 import shared
+import ctypes
 import tkinter as tk
 import customtkinter as ctk
 import CTkMenuBar as ctkmb
+import environmental_adjustment_fetcher as eaf
+from ctypes import wintypes
 from CTkListbox import CTkListbox
 from TEMPY import run_simulation
 from tooltipGen import CreateToolTip
 
+
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("dark-blue")
+
+
+# % Window setup
+class RECT(ctypes.Structure):
+    _fields_ = [
+        ('left',   wintypes.LONG),
+        ('top',    wintypes.LONG),
+        ('right',  wintypes.LONG),
+        ('bottom', wintypes.LONG)
+    ]
 
 
 # %
@@ -39,6 +53,11 @@ class MainApp(ctk.CTkFrame):
         
         self.winfo_toplevel().title("TEMPY")
         
+        # Multipliers for object sizes, tuned to equal 1 at 1920x1080
+        #   (eg. set to 2/3 for 1280x720)
+        self.multX = 1
+        self.multY = 1
+        
         # Containers for file names, these will be passed to the
         #   run_simulation function to handle GUI file assignment
         self.solarFile = None
@@ -58,6 +77,8 @@ class MainApp(ctk.CTkFrame):
         
         # For now, we initialize
         self.thermo_depth = [0]
+        self.deltaE1 = -0.15
+        self.deltaE6 = -0.12
         
         # run postprocess or not, True or False
         self.post_process = tk.BooleanVar(value=False)
@@ -70,26 +91,32 @@ class MainApp(ctk.CTkFrame):
         # Middle (dividing column)
         # This must be defined prior to the left/right side frame(s)
         #   to ensure it is on top
-        self.middleCol = ctk.CTkFrame(self, width=10, height=1080,
+        self.middleCol = ctk.CTkFrame(self, width=10 * self.multX,
+                                      height=1080 * self.multY,
                                       fg_color="black"
         )
         self.middleCol.place(relx=.5, rely=0, anchor="n")
 
         # Left side frame
-        self.leftFrame = ctk.CTkFrame(self, width=955, height=1055)
+        self.leftFrame = ctk.CTkFrame(self, width=955 * self.multX,
+                                      height=1055 * self.multY
+        )
         self.leftFrame.place(relx=0, rely=.02315, anchor="nw")
         
         # %% Step one: Enter project name
-        self.leftFrame.stepOne = ctk.CTkFrame(self.leftFrame, width=945,
-                                              height=150
+        self.leftFrame.stepOne = ctk.CTkFrame(self.leftFrame,
+                                              width=945 * self.multX,
+                                              height=150 * self.multY
         )
         self.leftFrame.stepOne.pack(padx=5, pady=5, side=ctk.TOP)
         
+        self.leftFrame.stepOne.stepName = ctk.CTkLabel(self.leftFrame.stepOne,
+                                                       text="Step 1: Enter project name")
         self.leftFrame.stepOne.projName = ctk.CTkLabel(
             self.leftFrame.stepOne, text=shared.proj_name, wraplength=500,
             font=("Segoe UI", 20, "bold")
         )
-        self.leftFrame.stepOne.projName.place(relx=.005, rely=0, anchor="nw")
+        self.leftFrame.stepOne.projName.place(relx=.665, rely=.45, anchor="nw")
         self.leftFrame.stepOne.nameEntry = ctk.CTkEntry(
             self.leftFrame.stepOne, placeholder_text="Enter a project name"
         )
@@ -100,13 +127,14 @@ class MainApp(ctk.CTkFrame):
             self.leftFrame.stepOne, text="Update project name",
             command=self.updateName
         )
-        self.leftFrame.stepOne.nameSubmit.place(relx=.005, rely=.95,
-                                                anchor="sw"
+        self.leftFrame.stepOne.nameSubmit.place(relx=.335, rely=.45,
+                                                anchor="nw"
         )
 
         # %% Step two: Enter project folder
-        self.leftFrame.stepTwo = ctk.CTkFrame(self.leftFrame, width=945,
-                                              height=150
+        self.leftFrame.stepTwo = ctk.CTkFrame(self.leftFrame,
+                                              width=945 * self.multX,
+                                              height=150 * self.multY
         )
         self.leftFrame.stepTwo.pack(padx=5, pady=5, side=ctk.TOP)
         
@@ -114,20 +142,21 @@ class MainApp(ctk.CTkFrame):
             self.leftFrame.stepTwo, text="Project Folder: "
             + shared.proj_folder
         )
-        self.leftFrame.stepTwo.projFolder.place(relx=.7, rely=.625,
-                                                anchor=ctk.CENTER
+        self.leftFrame.stepTwo.projFolder.place(relx=.005, rely=.45,
+                                                anchor="nw"
         )
         self.leftFrame.stepTwo.folderSubmit = ctk.CTkButton(
             self.leftFrame.stepTwo, text="Choose new project folder",
             command=lambda: self.selectfile(3)
         )
-        self.leftFrame.stepTwo.folderSubmit.place(relx=.7, rely=.85,
-                                                  anchor=ctk.CENTER
+        self.leftFrame.stepTwo.folderSubmit.place(relx=.005, rely=.95,
+                                                  anchor="sw"
         )
 
         # %% Step three: Enter asphalt concrete structural data
-        self.leftFrame.stepThree = ctk.CTkFrame(self.leftFrame, width=945,
-                                                height=150
+        self.leftFrame.stepThree = ctk.CTkFrame(self.leftFrame,
+                                                width=945 * self.multX,
+                                                height=150 * self.multY
         )
         self.leftFrame.stepThree.pack(padx=5, pady=5, side=ctk.TOP)
         
@@ -189,21 +218,155 @@ class MainApp(ctk.CTkFrame):
         self.leftFrame.stepThree.tsbLabel.place(relx=.6, rely=.95, anchor="sw")
 
         # %% Step four: Select seasonal adjustment parameters
-        self.leftFrame.stepFour = ctk.CTkFrame(self.leftFrame, width=945,
-                                               height=150
+        self.leftFrame.stepFour = ctk.CTkFrame(self.leftFrame,
+                                               width=945 * self.multX,
+                                               height=150 * self.multY
         )
         self.leftFrame.stepFour.pack(padx=5, pady=5, side=ctk.TOP)
         
-        ''' MORE WORK NEEDED, NOT IMPLEMENTED THUS FAR'''
+        # Left frame
+        self.leftFrame.stepFour.left = ctk.CTkFrame(self.leftFrame.stepFour,
+                                                    width=311 * self.multX,
+                                                    height=150 * self.multY
+        )
+        self.leftFrame.stepFour.left.pack(padx=2.5, pady=2.5, side=ctk.LEFT)
+        
+        self.leftFrame.stepFour.left.stepName = ctk.CTkLabel(
+            self.leftFrame.stepFour.left,
+            text="Step 4: Climate Modifier",
+            font=("Segoe UI", 16, "bold")
+        )
+        self.leftFrame.stepFour.left.stepName.place(relx=.5,
+                                                    rely=.005,
+                                                    anchor="n"
+        )
+        
+        self.leftFrame.stepFour.left.recBox = ctk.CTkComboBox(
+            self.leftFrame.stepFour.left,
+            values=eaf.state,
+            command=self.recommendedE1E6
+        )
+        self.leftFrame.stepFour.left.recBox.place(relx=.5,
+                                                  rely=.3,
+                                                  anchor="n"
+        )
+        
+        self.leftFrame.stepFour.left.recLabel = ctk.CTkLabel(
+            self.leftFrame.stepFour.left,
+            text="Choose recommended values by state",
+            wraplength=150,
+            font=("Segoe UI", 14)
+        )
+        self.leftFrame.stepFour.left.recLabel.place(relx=.5,
+                                               rely=.6,
+                                               anchor="n"
+        )
+        
+        # Middle frame needs to be defined in between left and right so
+        #   placement is correct.
+        self.leftFrame.stepFour.mid = ctk.CTkFrame(self.leftFrame.stepFour,
+                                                    width=311 * self.multX,
+                                                    height=150 * self.multY
+        )
+        self.leftFrame.stepFour.mid.pack(padx=2.5, pady=2.5, side=ctk.LEFT)
+        
+        # Right column
+        self.leftFrame.stepFour.right = ctk.CTkFrame(self.leftFrame.stepFour,
+                                                     width=311 * self.multX,
+                                                     height=150 * self.multY
+        
+        )
+        self.leftFrame.stepFour.right.pack(padx=2.5, pady=2.5, side=ctk.LEFT)
+        
+        self.leftFrame.stepFour.right.e1Label = ctk.CTkLabel(
+            self.leftFrame.stepFour.right,
+            text="Delta e1: " + str(self.deltaE1),
+            font=("Segoe UI", 16, "bold")
+        )
+        self.leftFrame.stepFour.right.e1Label.place(relx=.05,
+                                                    rely=.33,
+                                                    anchor="w"
+        )
+        self.leftFrame.stepFour.right.e6Label = ctk.CTkLabel(
+            self.leftFrame.stepFour.right,
+            text="Delta e6: " + str(self.deltaE6),
+            font=("Segoe UI", 16, "bold")
+        )
+        self.leftFrame.stepFour.right.e6Label.place(relx=.05,
+                                                    rely=.66,
+                                                    anchor="w"
+        )
+        
+        # Middle column widgets must be defined last since
+        #   they refer to other frames
+        
+        self.leftFrame.stepFour.mid.e1Entry = ctk.CTkEntry(
+            self.leftFrame.stepFour.mid,
+            width=120
+        )
+        self.leftFrame.stepFour.mid.e1Entry.place(relx=.025,
+                                                  rely=.05,
+                                                  anchor="nw"
+        )
+        self.leftFrame.stepFour.mid.e1Entry.insert(0, "-.15")
+        self.leftFrame.stepFour.mid.e6Entry = ctk.CTkEntry(
+            self.leftFrame.stepFour.mid,
+            width=120
+        )
+        self.leftFrame.stepFour.mid.e6Entry.place(relx=.025,
+                                                  rely=.35,
+                                                  anchor="nw"
+        )
+        self.leftFrame.stepFour.mid.e6Entry.insert(0, "-.12")
+        
+        self.leftFrame.stepFour.mid.e1Submit = ctk.CTkButton(
+            self.leftFrame.stepFour.mid,
+            text="Submit e1",
+            command=self.updateE1,
+            width=25
+        )
+        self.leftFrame.stepFour.mid.e1Submit.place(relx=.975,
+                                                   rely=.05,
+                                                   anchor="ne"
+        )
+        self.leftFrame.stepFour.mid.e6Submit = ctk.CTkButton(
+            self.leftFrame.stepFour.mid,
+            text="Submit e6",
+            command=self.updateE6,
+            width=25
+        )
+        self.leftFrame.stepFour.mid.e6Submit.place(relx=.975,
+                                                   rely=.35,
+                                                   anchor="ne"
+        )
+        
+        self.leftFrame.stepFour.mid.manEntryLabel = ctk.CTkLabel(
+            self.leftFrame.stepFour.mid,
+            text="Enter values manually",
+            font=("Segoe UI", 14)
+        )
+        self.leftFrame.stepFour.mid.manEntryLabel.place(relx=.5,
+                                                        rely=.65,
+                                                        anchor="n"
+        )
+        
+        # Label for the "OR" in between left and middle
+        self.leftFrame.stepFour.orLabel = ctk.CTkLabel(
+            self.leftFrame.stepFour,
+            text="OR",
+            font=("Segoe UI", 20, "bold")
+        )
+        self.leftFrame.stepFour.orLabel.place(relx=.33, rely=.65, anchor="n")
 
         # %% Step five: Select desired depths for calculations
-        self.leftFrame.stepFive = ctk.CTkFrame(self.leftFrame, width=945,
-                                               height=150
+        self.leftFrame.stepFive = ctk.CTkFrame(self.leftFrame,
+                                               width=945 * self.multX,
+                                               height=150 * self.multY
         )
         self.leftFrame.stepFive.pack(padx=5, pady=5, side=ctk.TOP)
         
         self.leftFrame.stepFive.depthList = CTkListbox(self.leftFrame.stepFive,
-                                                       height=50
+                                                       height=80
         )
         self.leftFrame.stepFive.depthList.place(relx=0.0125, rely=.95,
                                                 anchor="sw"
@@ -238,8 +401,10 @@ class MainApp(ctk.CTkFrame):
         )
 
         # %% Step six: Select files for data input
-        self.leftFrame.stepSix = ctk.CTkFrame(self.leftFrame, width=945,
-                                              height=150)
+        self.leftFrame.stepSix = ctk.CTkFrame(self.leftFrame,
+                                              width=945 * self.multX,
+                                              height=150 * self.multY
+        )
         self.leftFrame.stepSix.pack(padx=5, pady=5, side=ctk.TOP)
         
         self.leftFrame.stepSix.tempLabel = ctk.CTkLabel(
@@ -301,8 +466,9 @@ class MainApp(ctk.CTkFrame):
         )
         
         # %% Step Seven: Run simulation
-        self.leftFrame.stepSeven = ctk.CTkFrame(
-            self.leftFrame, width=945, height=75
+        self.leftFrame.stepSeven = ctk.CTkFrame(self.leftFrame,
+                                                width=945 * self.multX,
+                                                height=75 * self.multY
         )
         self.leftFrame.stepSeven.pack(padx=5, pady=5, side=ctk.TOP)
         
@@ -338,25 +504,29 @@ class MainApp(ctk.CTkFrame):
         )
         self.leftFrame.stepSeven.uc_box.place(relx=.05, rely=.3, anchor="nw")
         '''
-        self.rightFrame = ctk.CTkFrame(self, width=955, height=1080)
+        # %% Right Frame
+        self.rightFrame = ctk.CTkFrame(self,
+                                       width=955 * self.multX,
+                                       height=1080 * self.multY
+        )
         self.rightFrame.place(relx=.5026, rely=.02315)
         
         self.rightFrame.rightFrameTop = ctk.CTkFrame(self.rightFrame,
-                                                     width=955,
-                                                     height=525
+                                                     width=955 * self.multX,
+                                                     height=525 * self.multY
         )
         self.rightFrame.rightFrameTop.pack(side=ctk.TOP)
         
         self.rightFrame.rightDivider = ctk.CTkFrame(self.rightFrame,
-                                                    width=960,
-                                                    height=10,
+                                                    width=960 * self.multX,
+                                                    height=10 * self.multY,
                                                     fg_color="black"
         )
         self.rightFrame.rightDivider.pack(side=ctk.TOP)
         
         self.rightFrame.rightFrameBtm = ctk.CTkFrame(self.rightFrame,
-                                                     width=955,
-                                                     height=525
+                                                     width=955 * self.multX,
+                                                     height=525 * self.multY
         )
         self.rightFrame.rightFrameBtm.pack(side=ctk.TOP)
 
@@ -366,7 +536,8 @@ class MainApp(ctk.CTkFrame):
         self.mmb_option = self.mainMenuBar.add_cascade("Options")
         self.mmb_settings = self.mainMenuBar.add_cascade("Settings")
         self.mmb_about = self.mainMenuBar.add_cascade("About")
-        self.mmb_exit = self.mainMenuBar.add_cascade("Exit",
+        self.mmb_fs = self.mainMenuBar.add_cascade("Full screen options")
+        self.mmb_exit = self.mainMenuBar.add_cascade("Exit Application",
                                                      command=self.exit_function
         )
         
@@ -400,8 +571,343 @@ class MainApp(ctk.CTkFrame):
         
         self.dd_about = ctkmb.CustomDropdownMenu(widget=self.mmb_about)
         self.dd_about.add_option(option="Hello World")
-    
+        
+        self.dd_fs = ctkmb.CustomDropdownMenu(self.mmb_fs)
+        self.dd_fs.add_option(option="Exit Fullscreen",
+                              command=self.windowed
+        )
+        self.dd_fs.add_option(option="Enter Fullscreen",
+                              command=self.fullscreen
+        )
+        
+        # %% Finalizing setup
+        # We call windowed manually on initialization for safe boot
+        self.windowed()
+        
     # %% Functions
+    def recommendedE1E6(self, choice):
+        i = 0
+        while (i < len(eaf.state)):
+            if str(choice) == eaf.state[i]:
+                # Since the lists should be aligned (were grabbed line by line)
+                #   We should be able to simply share the index.
+                self.deltaE1 = eaf.e1[i]
+                self.deltaE6 = eaf.e6[i]
+                self.leftFrame.stepFour.right.e1Label.configure(
+                    text="Delta e1: " + "{:.10f}".format(self.deltaE1)
+                )
+                self.leftFrame.stepFour.right.e6Label.configure(
+                    text="Delta e6: " + "{:.10f}".format(self.deltaE6)
+                )
+                break
+            i = i + 1
+    
+    def updateE1(self):
+        try:
+            self.deltaE1 = float(self.leftFrame.stepFour.mid.e1Entry.get())
+            self.leftFrame.stepFour.mid.e1Entry.delete(0, 'end')
+        except ValueError:
+            self.popup = TopLevelWindow(geometry="300x150")
+            self.popup.title("Invalid selection!")
+
+            self.popup.warningMessage = ctk.CTkLabel(master=self.popup,
+                text="Oops! You entered an invalid value for e1. "
+                    + "Please try again to enter a numeric value",
+                wraplength=300, justify="center"
+            )
+            self.popup.warningMessage.place(relx=.5, rely=.5,
+                                            anchor=ctk.CENTER)
+            
+            self.popup.exitPopup = ctk.CTkButton(self.popup,
+                text="Close pop-up window",
+                command=lambda: self.closePopup(self.popup)
+            )
+            self.popup.exitPopup.place(relx=.5, rely=.7, anchor=ctk.CENTER)
+            
+            self.popup.update()
+        self.leftFrame.stepFour.right.e1Label.configure(text="Delta e1: "
+                                                  + str(self.deltaE1)
+        )
+    
+    def updateE6(self):
+        try:
+            self.deltaE6 = float(self.leftFrame.stepFour.mid.e6Entry.get())
+            self.leftFrame.stepFour.mid.e6Entry.delete(0, 'end')
+        except ValueError:
+            self.popup = TopLevelWindow(geometry="300x150")
+            self.popup.title("Invalid selection!")
+
+            self.popup.warningMessage = ctk.CTkLabel(master=self.popup,
+                text="Oops! You entered an invalid value for e6. "
+                    + "Please try again to enter a numeric value",
+                wraplength=300, justify="center"
+            )
+            self.popup.warningMessage.place(relx=.5, rely=.5,
+                                            anchor=ctk.CENTER)
+            
+            self.popup.exitPopup = ctk.CTkButton(self.popup,
+                text="Close pop-up window",
+                command=lambda: self.closePopup(self.popup)
+            )
+            self.popup.exitPopup.place(relx=.5, rely=.7, anchor=ctk.CENTER)
+            
+            self.popup.update()
+
+        self.leftFrame.stepFour.right.e6Label.configure(text="Delta e6: "
+                                                  + str(self.deltaE6)
+        )
+    
+    def windowed(self):
+        root.attributes("-fullscreen", False)
+        root.geometry("1280x720")
+        
+        # Resize all elements to fit in the page.
+        #   Some placement related modifications will need to be made.
+        self.leftFrame.stepOne.pack(padx=2.5, pady=2.5, side=ctk.TOP)
+        self.leftFrame.stepTwo.pack(padx=2.5, pady=2.5, side=ctk.TOP)
+        self.leftFrame.stepThree.pack(padx=2.5, pady=2.5, side=ctk.TOP)
+        self.leftFrame.stepFour.pack(padx=2.5, pady=2.5, side=ctk.TOP)
+        self.leftFrame.stepFive.pack(padx=2.5, pady=2.5, side=ctk.TOP)
+        self.leftFrame.stepSix.pack(padx=2.5, pady=2.5, side=ctk.TOP)
+        self.leftFrame.stepSeven.pack(padx=2.5, pady=2.5, side=ctk.TOP)
+        
+        self.multX = 2 / 3
+        self.multY = 2 / 3
+        self.middleCol.configure(width=10 * self.multX,
+                                 height=1080 * self.multY,
+        )
+        self.leftFrame.configure(width=955 * self.multX,
+                                 height=1055 * self.multY
+        )
+        self.leftFrame.stepOne.configure(width=945 * self.multX,
+                                         height=150 * self.multY
+        )
+        # Step one updates:
+        self.leftFrame.stepOne.nameEntry.place(relx=.005,
+                                               rely=.95,
+                                               anchor="sw"
+        )
+        self.leftFrame.stepOne.nameSubmit.place(relx=.25,
+                                                rely=.95,
+                                                anchor="sw"
+        )
+        self.leftFrame.stepOne.projName.place(relx=.5,
+                                              rely=.95,
+                                              anchor="sw"
+        )
+        
+        self.leftFrame.stepTwo.configure(width=945 * self.multX,
+                                         height=150 * self.multY
+        )
+        self.leftFrame.stepThree.configure(width=945 * self.multX,
+                                           height=150 * self.multY
+        )
+        self.leftFrame.stepFour.configure(width=945 * self.multX,
+                                          height=150 * self.multY
+        )
+        # Step four updates:
+        self.leftFrame.stepFour.left.configure(width=311 * self.multX,
+                                               height=150 * self.multY
+        )
+        self.leftFrame.stepFour.mid.configure(width=311 * self.multX,
+                                               height=150 * self.multY
+        )
+        self.leftFrame.stepFour.right.configure(width=311 * self.multX,
+                                               height=150 * self.multY
+        )
+        
+        self.leftFrame.stepFive.configure(width=945 * self.multX,
+                                          height=150 * self.multY
+        )
+        self.leftFrame.stepSix.configure(width=945 * self.multX,
+                                         height=150 * self.multY
+        )
+        self.leftFrame.stepSeven.configure(width=945 * self.multX,
+                                           height=75 * self.multY
+        )
+        self.rightFrame.configure(width=955 * self.multX,
+                                  height=1080 * self.multY)
+        self.rightFrame.rightFrameTop.configure(width=955 * self.multX,
+                                                height=525 * self.multY
+        )
+        self.rightFrame.rightDivider.configure(width=960 * self.multX,
+                                               height=10 * self.multY
+        )
+        self.rightFrame.rightFrameBtm.configure(width=955 * self.multX,
+                                                height=525 * self.multY
+        )
+        
+        # Placement related modifications
+        # Step 2
+        self.leftFrame.stepTwo.projFolder.place(relx=.005, rely=.625,
+                                                anchor="sw"
+        )
+        self.leftFrame.stepTwo.folderSubmit.place(relx=.005, rely=.95,
+                                                  anchor="sw"
+        )
+        
+        # Step 5
+        self.leftFrame.stepFive.depthList.place(relx=0.46, rely=.95,
+                                                anchor="sw"
+        )
+        self.leftFrame.stepFive.depthList.configure(height=70)
+        
+        # Step 6
+        self.leftFrame.stepSix.tempLabel.place(relx=.005, rely=.17,
+                                               anchor="w"
+        )
+        self.leftFrame.stepSix.tempFileLabel.place(relx=.5025, rely=.17,
+                                                   anchor="w"
+        )
+        self.leftFrame.stepSix.tempFileButton.place(relx=.1525, rely=.17,
+                                                    anchor="w"
+        )
+        
+        self.leftFrame.stepSix.windLabel.place(relx=.005, rely=.5,
+                                               anchor="w"
+        )
+        self.leftFrame.stepSix.windFileLabel.place(relx=.5025, rely=.5,
+                                                   anchor="w"
+        )
+        self.leftFrame.stepSix.windFileButton.place(relx=.1525, rely=.5,
+                                                    anchor="w"
+        )
+        
+        self.leftFrame.stepSix.solarLabel.place(relx=.005, rely=.83,
+                                                anchor="w"
+        )
+        self.leftFrame.stepSix.solarFileLabel.place(relx=.5025, rely=.83,
+                                                    anchor="w"
+        )
+        self.leftFrame.stepSix.solarFileButton.place(relx=.1525, rely=.83,
+                                                     anchor="w"
+        )
+    
+    def fullscreen(self):
+        root.attributes("-fullscreen", True)
+        rect = RECT()
+        ctypes.windll.user32.SystemParametersInfoW(48,
+                                                   0,
+                                                   ctypes.byref(rect),
+                                                   0
+        )
+        screen_width, screen_height = rect.right, rect.bottom
+        root.geometry(f'{screen_width}x{screen_height}+0+0')
+        
+        self.leftFrame.stepOne.pack(padx=5, pady=5, side=ctk.TOP)
+        self.leftFrame.stepTwo.pack(padx=5, pady=5, side=ctk.TOP)
+        self.leftFrame.stepThree.pack(padx=5, pady=5, side=ctk.TOP)
+        self.leftFrame.stepFour.pack(padx=5, pady=5, side=ctk.TOP)
+        self.leftFrame.stepFive.pack(padx=5, pady=5, side=ctk.TOP)
+        self.leftFrame.stepSix.pack(padx=5, pady=5, side=ctk.TOP)
+        self.leftFrame.stepSeven.pack(padx=5, pady=5, side=ctk.TOP)
+        
+        self.multX = 1
+        self.multY = 1
+        self.middleCol.configure(width=10 * self.multX,
+                                 height=1080 * self.multY,
+        )
+        self.leftFrame.configure(width=955 * self.multX,
+                                 height=1055 * self.multY
+        )
+        self.leftFrame.stepOne.configure(width=945 * self.multX,
+                                         height=150 * self.multY
+        )
+        self.leftFrame.stepTwo.configure(width=945 * self.multX,
+                                         height=150 * self.multY
+        )
+        self.leftFrame.stepThree.configure(width=945 * self.multX,
+                                           height=150 * self.multY
+        )
+        self.leftFrame.stepFour.configure(width=945 * self.multX,
+                                          height=150 * self.multY
+        )
+        
+        # Step four updates:
+        self.leftFrame.stepFour.left.configure(width=311 * self.multX,
+                                               height=150 * self.multY
+        )
+        self.leftFrame.stepFour.mid.configure(width=311 * self.multX,
+                                               height=150 * self.multY
+        )
+        self.leftFrame.stepFour.right.configure(width=311 * self.multX,
+                                               height=150 * self.multY
+        )
+        
+        self.leftFrame.stepFive.configure(width=945 * self.multX,
+                                          height=150 * self.multY
+        )
+        self.leftFrame.stepSix.configure(width=945 * self.multX,
+                                         height=150 * self.multY
+        )
+        self.leftFrame.stepSeven.configure(width=945 * self.multX,
+                                           height=75 * self.multY
+        )
+        self.rightFrame.configure(width=955 * self.multX,
+                                  height=1080 * self.multY)
+        self.rightFrame.rightFrameTop.configure(width=955 * self.multX,
+                                                height=525 * self.multY
+        )
+        self.rightFrame.rightDivider.configure(width=960 * self.multX,
+                                               height=10 * self.multY
+        )
+        self.rightFrame.rightFrameBtm.configure(width=955 * self.multX,
+                                                height=525 * self.multY
+        )
+        
+        # Placement related modifications
+        # Step 1
+        self.leftFrame.stepOne.projName.place(relx=.005, rely=0, anchor="nw")
+        self.leftFrame.stepOne.nameEntry.place(relx=.005, rely=.45,
+                                               anchor="nw"
+        )
+        self.leftFrame.stepOne.nameSubmit.place(relx=.005, rely=.95,
+                                                anchor="sw"
+        )
+        
+        # Step 2
+        self.leftFrame.stepTwo.projFolder.place(relx=.005, rely=.45,
+                                                anchor="nw"
+        )
+        self.leftFrame.stepTwo.folderSubmit.place(relx=.005, rely=.95,
+                                                  anchor="sw"
+        )
+        
+        # Step 5
+        self.leftFrame.stepFive.depthList.place(relx=0.0125, rely=.95,
+                                                anchor="sw"
+        )
+        self.leftFrame.stepFive.depthList.configure(height=80)
+        
+        # Step 6
+        self.leftFrame.stepSix.tempLabel.place(relx=.005, rely=.15,
+                                               anchor="w"
+        )
+        self.leftFrame.stepSix.tempFileLabel.place(relx=.5025, rely=.15,
+                                                   anchor="w"
+        )
+        self.leftFrame.stepSix.tempFileButton.place(relx=.1525, rely=.15,
+                                                    anchor="w"
+        )
+        
+        self.leftFrame.stepSix.windLabel.place(relx=.005, rely=.48, anchor="w")
+        self.leftFrame.stepSix.windFileLabel.place(relx=.5025, rely=.48,
+                                                   anchor="w"
+        )
+        self.leftFrame.stepSix.windFileButton.place(relx=.1525, rely=.48,
+                                                    anchor="w"
+        )
+        
+        self.leftFrame.stepSix.solarLabel.place(relx=.005, rely=.81,
+                                                anchor="w"
+        )
+        self.leftFrame.stepSix.solarFileLabel.place(relx=.5025, rely=.81,
+                                                    anchor="w"
+        )
+        self.leftFrame.stepSix.solarFileButton.place(relx=.1525, rely=.81,
+                                                     anchor="w"
+        )
+        
     def updateName(self):
         shared.proj_name = str(self.leftFrame.stepOne.nameEntry.get())
         self.leftFrame.stepOne.projName.configure(text=shared.proj_name)
@@ -861,8 +1367,11 @@ def main():
 
 # %% Main init
 if __name__ == "__main__":
+    
     root = ctk.CTk()
-    root.geometry("1920x1080")
+    root.attributes('-fullscreen', False)
+    root.resizable(False, False)
+    root.geometry("1280x720")
     
     app = MainApp(root)
     app.pack(side="top", fill="both", expand=True)
