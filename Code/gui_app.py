@@ -110,8 +110,12 @@ class MainApp(ctk.CTkFrame):
         )
         self.leftFrame.stepOne.pack(padx=5, pady=5, side=ctk.TOP)
         
-        self.leftFrame.stepOne.stepName = ctk.CTkLabel(self.leftFrame.stepOne,
-                                                       text="Step 1: Enter project name")
+        self.leftFrame.stepOne.stepName = ctk.CTkLabel(
+            self.leftFrame.stepOne,
+            text="Step 1: Enter project name",
+            font=("Segoe UI", 16, "bold")
+        )
+        self.leftFrame.stepOne.stepName.place(relx=.005, rely=.05, anchor="nw")
         self.leftFrame.stepOne.projName = ctk.CTkLabel(
             self.leftFrame.stepOne, text=shared.proj_name, wraplength=500,
             font=("Segoe UI", 20, "bold")
@@ -138,6 +142,15 @@ class MainApp(ctk.CTkFrame):
         )
         self.leftFrame.stepTwo.pack(padx=5, pady=5, side=ctk.TOP)
         
+        self.leftFrame.stepTwo.stepName = ctk.CTkLabel(
+            self.leftFrame.stepTwo,
+            text="Step 2: Choose project folder",
+            font=("Segoe UI", 16, "bold")
+        )
+        self.leftFrame.stepTwo.stepName.place(relx=.005,
+                                              rely=.005,
+                                              anchor="nw"
+        )
         self.leftFrame.stepTwo.projFolder = ctk.CTkLabel(
             self.leftFrame.stepTwo, text="Project Folder: "
             + shared.proj_folder
@@ -160,23 +173,39 @@ class MainApp(ctk.CTkFrame):
         )
         self.leftFrame.stepThree.pack(padx=5, pady=5, side=ctk.TOP)
         
+        self.leftFrame.stepThree.stepName = ctk.CTkLabel(
+            self.leftFrame.stepThree,
+            text="Step 3: \nInput concrete \nstructural data",
+            font=("Segoe UI", 16, "bold")
+        )
+        self.leftFrame.stepThree.stepName.place(relx=.01,
+                                                rely=.005,
+                                                anchor="nw"
+        )
+        
         # Thickness AC (asphalt concrete)
         self.leftFrame.stepThree.tacEntry = ctk.CTkEntry(
             self.leftFrame.stepThree
         )
-        self.leftFrame.stepThree.tacEntry.place(relx=.005, rely=.05,
+        self.leftFrame.stepThree.tacEntry.place(relx=.2, rely=.05,
                                                 anchor="nw"
         )
         self.leftFrame.stepThree.tacEnter = ctk.CTkButton(
             self.leftFrame.stepThree, text="Update", command=self.updateTAC
         )
-        self.leftFrame.stepThree.tacEnter.place(relx=.3, rely=.05, anchor="nw")
+        self.leftFrame.stepThree.tacEnter.place(relx=.44,
+                                                rely=.05,
+                                                anchor="nw"
+        )
         self.leftFrame.stepThree.tacLabel = ctk.CTkLabel(
             self.leftFrame.stepThree,
             text=("Total AC thickness:              "
                   + str(self.thicknessAC) + " m")
         )
-        self.leftFrame.stepThree.tacLabel.place(relx=.6, rely=.05, anchor="nw")
+        self.leftFrame.stepThree.tacLabel.place(relx=.68,
+                                                rely=.05,
+                                                anchor="nw"
+        )
         
         # Creating tooltip to let the user know that AC = Asphalt Concrete
         self.leftFrame.stepThree.ACtt = CreateToolTip(
@@ -187,35 +216,41 @@ class MainApp(ctk.CTkFrame):
         self.leftFrame.stepThree.tbEntry = ctk.CTkEntry(
             self.leftFrame.stepThree
         )
-        self.leftFrame.stepThree.tbEntry.place(relx=.005, rely=.5, anchor="w")
+        self.leftFrame.stepThree.tbEntry.place(relx=.2, rely=.5, anchor="w")
         self.leftFrame.stepThree.tbEnter = ctk.CTkButton(
             self.leftFrame.stepThree, text="Update", command=self.updateTB
         )
-        self.leftFrame.stepThree.tbEnter.place(relx=.3, rely=.5, anchor="w")
+        self.leftFrame.stepThree.tbEnter.place(relx=.44, rely=.5, anchor="w")
         self.leftFrame.stepThree.tbLabel = ctk.CTkLabel(
             self.leftFrame.stepThree,
             text=("Total base thickness:          "
                   + str(self.thicknessBase) + " m")
         )
-        self.leftFrame.stepThree.tbLabel.place(relx=.6, rely=.5, anchor="w")
+        self.leftFrame.stepThree.tbLabel.place(relx=.68, rely=.5, anchor="w")
         
         # Thickness subbase
         self.leftFrame.stepThree.tsbEntry = ctk.CTkEntry(
             self.leftFrame.stepThree
         )
-        self.leftFrame.stepThree.tsbEntry.place(relx=.005, rely=.95,
+        self.leftFrame.stepThree.tsbEntry.place(relx=.2, rely=.95,
                                                 anchor="sw"
         )
         self.leftFrame.stepThree.tsbEnter = ctk.CTkButton(
             self.leftFrame.stepThree, text="Update", command=self.updateTSB
         )
-        self.leftFrame.stepThree.tsbEnter.place(relx=.3, rely=.95, anchor="sw")
+        self.leftFrame.stepThree.tsbEnter.place(relx=.44,
+                                                rely=.95,
+                                                anchor="sw"
+        )
         self.leftFrame.stepThree.tsbLabel = ctk.CTkLabel(
             self.leftFrame.stepThree,
             text=("Total subbase thickness:   "
                   + str(self.thicknessSubbase) + " m")
         )
-        self.leftFrame.stepThree.tsbLabel.place(relx=.6, rely=.95, anchor="sw")
+        self.leftFrame.stepThree.tsbLabel.place(relx=.68,
+                                                rely=.95,
+                                                anchor="sw"
+        )
 
         # %% Step four: Select seasonal adjustment parameters
         self.leftFrame.stepFour = ctk.CTkFrame(self.leftFrame,
@@ -373,8 +408,8 @@ class MainApp(ctk.CTkFrame):
         )
         self.leftFrame.stepFive.depthEntryLabel = ctk.CTkLabel(
             self.leftFrame.stepFive,
-            text="Enter depths (m) for temperature profile",
-            font=("Segoe UI", 16)
+            text="Step 5: Enter depths (m) \nfor temperature profile",
+            font=("Segoe UI", 16, "bold")
         )
         self.leftFrame.stepFive.depthEntryLabel.place(relx=.0125, rely=.05,
                                                       anchor="nw"
@@ -407,12 +442,16 @@ class MainApp(ctk.CTkFrame):
         )
         self.leftFrame.stepSix.pack(padx=5, pady=5, side=ctk.TOP)
         
-        self.leftFrame.stepSix.tempLabel = ctk.CTkLabel(
-            self.leftFrame.stepSix, text="Temp Data"
+        self.leftFrame.stepSix.stepName = ctk.CTkLabel(
+            self.leftFrame.stepSix,
+            text="Step 6: Input data files",
+            font=("Segoe UI", 16, "bold")
         )
-        self.leftFrame.stepSix.tempLabel.place(relx=.005, rely=.15,
-                                               anchor="w"
+        self.leftFrame.stepSix.stepName.place(relx=.005,
+                                              rely=.005,
+                                              anchor="nw"
         )
+        
         self.leftFrame.stepSix.tempFileLabel = ctk.CTkLabel(
             self.leftFrame.stepSix, text="No file..."
         )
@@ -420,17 +459,13 @@ class MainApp(ctk.CTkFrame):
                                                    anchor="w"
         )
         self.leftFrame.stepSix.tempFileButton = ctk.CTkButton(
-            self.leftFrame.stepSix, text="Select file...",
+            self.leftFrame.stepSix, text="Select temp data file...",
             command=lambda: self.selectfile(2)
         )
         self.leftFrame.stepSix.tempFileButton.place(relx=.1525, rely=.15,
                                                     anchor="w"
         )
         
-        self.leftFrame.stepSix.windLabel = ctk.CTkLabel(
-            self.leftFrame.stepSix, text="Wind Data"
-        )
-        self.leftFrame.stepSix.windLabel.place(relx=.005, rely=.48, anchor="w")
         self.leftFrame.stepSix.windFileLabel = ctk.CTkLabel(
             self.leftFrame.stepSix, text="No file..."
         )
@@ -438,19 +473,13 @@ class MainApp(ctk.CTkFrame):
                                                    anchor="w"
         )
         self.leftFrame.stepSix.windFileButton = ctk.CTkButton(
-            self.leftFrame.stepSix, text="Select file...",
+            self.leftFrame.stepSix, text="Select wind data file...",
             command=lambda: self.selectfile(1)
         )
         self.leftFrame.stepSix.windFileButton.place(relx=.1525, rely=.48,
                                                     anchor="w"
         )
-        
-        self.leftFrame.stepSix.solarLabel = ctk.CTkLabel(
-            self.leftFrame.stepSix, text="Solar Data"
-        )
-        self.leftFrame.stepSix.solarLabel.place(relx=.005, rely=.81,
-                                                anchor="w"
-        )
+
         self.leftFrame.stepSix.solarFileLabel = ctk.CTkLabel(
             self.leftFrame.stepSix, text="No file..."
         )
@@ -458,7 +487,7 @@ class MainApp(ctk.CTkFrame):
                                                     anchor="w"
         )
         self.leftFrame.stepSix.solarFileButton = ctk.CTkButton(
-            self.leftFrame.stepSix, text="Select file...",
+            self.leftFrame.stepSix, text="Select solar data file...",
             command=lambda: self.selectfile(0)
         )
         self.leftFrame.stepSix.solarFileButton.place(relx=.1525, rely=.81,
@@ -611,11 +640,11 @@ class MainApp(ctk.CTkFrame):
             self.popup.title("Invalid selection!")
 
             self.popup.warningMessage = ctk.CTkLabel(master=self.popup,
-                text="Oops! You entered an invalid value for e1. "
+                text="Oops! You entered an invalid value for e1. \n"
                     + "Please try again to enter a numeric value",
                 wraplength=300, justify="center"
             )
-            self.popup.warningMessage.place(relx=.5, rely=.5,
+            self.popup.warningMessage.place(relx=.5, rely=.3,
                                             anchor=ctk.CENTER)
             
             self.popup.exitPopup = ctk.CTkButton(self.popup,
@@ -638,11 +667,11 @@ class MainApp(ctk.CTkFrame):
             self.popup.title("Invalid selection!")
 
             self.popup.warningMessage = ctk.CTkLabel(master=self.popup,
-                text="Oops! You entered an invalid value for e6. "
+                text="Oops! You entered an invalid value for e6. \n"
                     + "Please try again to enter a numeric value",
                 wraplength=300, justify="center"
             )
-            self.popup.warningMessage.place(relx=.5, rely=.5,
+            self.popup.warningMessage.place(relx=.5, rely=.3,
                                             anchor=ctk.CENTER)
             
             self.popup.exitPopup = ctk.CTkButton(self.popup,
@@ -719,9 +748,54 @@ class MainApp(ctk.CTkFrame):
         self.leftFrame.stepFive.configure(width=945 * self.multX,
                                           height=150 * self.multY
         )
+        # Step five updates:
+        self.leftFrame.stepFive.depthList.place(relx=0.7, rely=.94,
+                                                anchor="sw"
+        )
+        self.leftFrame.stepFive.depthList.configure(height=70)
+        self.leftFrame.stepFive.depthEntry.place(relx=.46,
+                                                 rely=.06,
+                                                 anchor="nw"
+        )
+        self.leftFrame.stepFive.depthEntryButton.place(relx=.46,
+                                                       rely=.36,
+                                                       anchor="nw"
+        )
+        self.leftFrame.stepFive.depthDeleteButton.place(relx=.46,
+                                                        rely=.66,
+                                                        anchor="nw"
+        )
+        
         self.leftFrame.stepSix.configure(width=945 * self.multX,
                                          height=150 * self.multY
         )
+        # Step six updates:
+        self.leftFrame.stepSix.tempFileLabel.place(relx=.7,
+                                                   rely=.05,
+                                                   anchor="nw"
+        )
+        self.leftFrame.stepSix.windFileLabel.place(relx=.7,
+                                                   rely=.38,
+                                                   anchor="nw"
+        )
+        self.leftFrame.stepSix.solarFileLabel.place(relx=.7,
+                                                    rely=.71,
+                                                    anchor="nw"
+        )
+        
+        self.leftFrame.stepSix.tempFileButton.place(relx=.46,
+                                                    rely=.05,
+                                                    anchor="nw"
+        )
+        self.leftFrame.stepSix.windFileButton.place(relx=.46,
+                                                    rely=.38,
+                                                    anchor="nw"
+        )
+        self.leftFrame.stepSix.solarFileButton.place(relx=.46,
+                                                     rely=.71,
+                                                     anchor="nw"
+        )
+
         self.leftFrame.stepSeven.configure(width=945 * self.multX,
                                            height=75 * self.multY
         )
@@ -745,44 +819,7 @@ class MainApp(ctk.CTkFrame):
         self.leftFrame.stepTwo.folderSubmit.place(relx=.005, rely=.95,
                                                   anchor="sw"
         )
-        
-        # Step 5
-        self.leftFrame.stepFive.depthList.place(relx=0.46, rely=.95,
-                                                anchor="sw"
-        )
-        self.leftFrame.stepFive.depthList.configure(height=70)
-        
-        # Step 6
-        self.leftFrame.stepSix.tempLabel.place(relx=.005, rely=.17,
-                                               anchor="w"
-        )
-        self.leftFrame.stepSix.tempFileLabel.place(relx=.5025, rely=.17,
-                                                   anchor="w"
-        )
-        self.leftFrame.stepSix.tempFileButton.place(relx=.1525, rely=.17,
-                                                    anchor="w"
-        )
-        
-        self.leftFrame.stepSix.windLabel.place(relx=.005, rely=.5,
-                                               anchor="w"
-        )
-        self.leftFrame.stepSix.windFileLabel.place(relx=.5025, rely=.5,
-                                                   anchor="w"
-        )
-        self.leftFrame.stepSix.windFileButton.place(relx=.1525, rely=.5,
-                                                    anchor="w"
-        )
-        
-        self.leftFrame.stepSix.solarLabel.place(relx=.005, rely=.83,
-                                                anchor="w"
-        )
-        self.leftFrame.stepSix.solarFileLabel.place(relx=.5025, rely=.83,
-                                                    anchor="w"
-        )
-        self.leftFrame.stepSix.solarFileButton.place(relx=.1525, rely=.83,
-                                                     anchor="w"
-        )
-    
+
     def fullscreen(self):
         root.attributes("-fullscreen", True)
         rect = RECT()
@@ -914,27 +951,54 @@ class MainApp(ctk.CTkFrame):
     
     def updateTSB(self):
         try:
-            self.thicknessSubbase = float(
-                self.leftFrame.stepThree.tsbEntry.get()
-            )
-            
-            self.thicknessSubgrade = self.totalThickness - self.thicknessAC \
-                                    - self.thicknessBase \
-                                    - self.thicknessSubbase
-            
-            self.leftFrame.stepThree.tsbLabel.configure(
-                text=("Total subbase thickness:   "
-                      + str(self.thicknessSubbase) + " m"))
+            if self.thicknessAC + self.thicknessBase \
+                    + float(self.leftFrame.stepThree.tsbEntry.get()) \
+                    > self.totalThickness:
+                self.popup = TopLevelWindow(geometry="350x150")
+                self.popup.title("Invalid subbase thickness!")
+                
+                self.popup.warningMessage = ctk.CTkLabel(self.popup,
+                    text="Entered subbase value causes negative subgrade "
+                            "value: \n\n(1) Enter new subbase value \n or \n"
+                            "(2) Update base/AC thickness",
+                    wraplength=350,
+                    justify="center"
+                )
+                self.popup.warningMessage.place(relx=.5,
+                                                rely=.3,
+                                                anchor=ctk.CENTER
+                )
+                self.popup.exitPopup = ctk.CTkButton(self.popup,
+                    text="Close pop-up window",
+                    command=lambda: self.closePopup(self.popup)
+                )
+                self.popup.exitPopup.place(relx=.5, rely=.7, anchor=ctk.CENTER)
+                
+                self.popup.update()
+            else:
+                self.thicknessSubbase = float(
+                    self.leftFrame.stepThree.tsbEntry.get()
+                )
+                
+                self.thicknessSubgrade = self.totalThickness \
+                                        - self.thicknessAC \
+                                        - self.thicknessBase \
+                                        - self.thicknessSubbase
+                
+                self.leftFrame.stepThree.tsbLabel.configure(
+                    text=("Total subbase thickness:   "
+                          + str(self.thicknessSubbase) + " m"))
         except ValueError:
-            self.popup = TopLevelWindow(self)
+            self.popup = TopLevelWindow(geometry="350x150")
             self.popup.title("Invalid selection!")
 
             self.popup.warningMessage = ctk.CTkLabel(master=self.popup,
-                text="Oops! You tried to enter an invalid value for the total "
-                        "thickness. Ensure all values are entered as numeric",
-                wraplength=300, justify="center"
+                text="Oops! \n "
+                    "You tried to enter an invalid value for the subbase "
+                    "thickness. Ensure all values are entered as numeric",
+                wraplength=350, justify="center"
             )
-            self.popup.warningMessage.place(relx=.5, rely=.5,
+            self.popup.warningMessage.place(relx=.5, rely=.3,
                                             anchor=ctk.CENTER)
             
             self.popup.exitPopup = ctk.CTkButton(self.popup,
@@ -944,42 +1008,56 @@ class MainApp(ctk.CTkFrame):
             self.popup.exitPopup.place(relx=.5, rely=.7, anchor=ctk.CENTER)
             
             self.popup.update()
-        except self.thicknessAC + self.thicknessBase + self.thicknessSubbase \
-                > self.totalThickness:
-            self.popup = TopLevelWindow(geometry="300x150")
-            self.popup.title("Invalid subbase thickness!")
-            
-            self.popup.warningMessage = ctk.CTkLabel(self.popup,
-                text="Entered subbase value causes negative subgrade value, "
-                        "enter new subbase value, "
-                        "or update base/subbase thickness",
-                wraplength=300,
-                justify="center"
-            )
-            self.popup.warningMessage.place(relx=.5, rely=.5,
-                                            anchor=ctk.CENTER)
     
     def updateTB(self):
         try:
-            self.thicknessBase = float(self.leftFrame.stepThree.tbEntry.get())
-            
-            self.thicknessSubgrade = self.totalThickness - self.thicknessAC \
-                                    - self.thicknessBase \
-                                    - self.thicknessSubbase
-            
-            self.leftFrame.stepThree.tbLabel.configure(
-                text=("Total base thickness:          "
-                      + str(self.thicknessBase) + " m"))
+            if self.thicknessAC \
+                    + float(self.leftFrame.stepThree.tbEntry.get()) \
+                    + self.thicknessBase \
+                    > self.totalThickness:
+                self.popup = TopLevelWindow(geometry="350x150")
+                self.popup.title("Invalid base thickness!")
+                
+                self.popup.warningMessage = ctk.CTkLabel(self.popup,
+                    text="Entered base value causes negative subgrade value:"
+                            "\n\n(1) Enter new base value \n"
+                            "or\n(2) Update AC/subbase thickness",
+                    wraplength=350,
+                    justify="center"
+                )
+                self.popup.warningMessage.place(relx=.5, rely=.3,
+                                                anchor=ctk.CENTER)
+                self.popup.exitPopup = ctk.CTkButton(self.popup,
+                    text="Close pop-up window",
+                    command=lambda: self.closePopup(self.popup)
+                )
+                self.popup.exitPopup.place(relx=.5, rely=.7, anchor=ctk.CENTER)
+                
+                self.popup.update()
+            else:
+                self.thicknessBase = float(
+                    self.leftFrame.stepThree.tbEntry.get()
+                )
+                
+                self.thicknessSubgrade = self.totalThickness \
+                                        - self.thicknessAC \
+                                        - self.thicknessBase \
+                                        - self.thicknessSubbase
+                
+                self.leftFrame.stepThree.tbLabel.configure(
+                    text=("Total base thickness:          "
+                          + str(self.thicknessBase) + " m"))
         except ValueError:
-            self.popup = TopLevelWindow(self)
+            self.popup = TopLevelWindow(geometry="350x150")
             self.popup.title("Invalid selection!")
 
             self.popup.warningMessage = ctk.CTkLabel(self.popup,
-                text="Oops! You tried to enter an invalid value for the total "
+                text="Oops! \n"
+                        "You tried to enter an invalid value for the base "
                         "thickness. Ensure all values are entered as numeric",
-                wraplength=300, justify="center"
+                wraplength=350, justify="center"
             )
-            self.popup.warningMessage.place(relx=.5, rely=.5,
+            self.popup.warningMessage.place(relx=.5, rely=.3,
                                             anchor=ctk.CENTER)
             
             self.popup.exitPopup = ctk.CTkButton(self.popup,
@@ -989,41 +1067,55 @@ class MainApp(ctk.CTkFrame):
             self.popup.exitPopup.place(relx=.5, rely=.7, anchor=ctk.CENTER)
             
             self.popup.update()
-        except self.thicknessAC + self.thicknessBase + self.thicknessSubbase \
-                > self.totalThickness:
-            self.popup = TopLevelWindow(geometry="300x150")
-            self.popup.title("Invalid base thickness!")
-            
-            self.popup.warningMessage = ctk.CTkLabel(self.popup,
-                text="Entered base value causes negative subgrade value, enter"
-                        " new base value, or update base/subbase thickness",
-                wraplength=300,
-                justify="center"
-            )
-            self.popup.warningMessage.place(relx=.5, rely=.5,
-                                            anchor=ctk.CENTER)
-    
+
     def updateTAC(self):
         try:
-            self.thicknessAC = float(self.leftFrame.stepThree.tacEntry.get())
-            
-            self.thicknessSubgrade = self.totalThickness - self.thicknessAC \
-                                    - self.thicknessBase \
-                                    - self.thicknessSubbase
-            
-            self.leftFrame.stepThree.tacLabel.configure(
-                text=("Total AC thickness:               "
-                     + str(self.thicknessAC) + " m"))
+            if float(self.leftFrame.stepThree.tacEntry.get()) \
+                    + self.thicknessBase + self.thicknessSubbase \
+                    > self.totalThickness:
+                self.popup = TopLevelWindow(geometry="350x150")
+                self.popup.title("Invalid asphalt concrete thickness!")
+                
+                self.popup.warningMessage = ctk.CTkLabel(self.popup,
+                    text="Entered asphalt value causes negative subgrade "
+                            "value:\n\n(1) Enter new AC value\nor\n"
+                            "(2) Update base/subbase thickness",
+                    wraplength=350,
+                    justify="center"
+                )
+                self.popup.warningMessage.place(relx=.5, rely=.3,
+                                                anchor=ctk.CENTER)
+                self.popup.exitPopup = ctk.CTkButton(self.popup,
+                    text="Close pop-up window",
+                    command=lambda: self.closePopup(self.popup)
+                )
+                self.popup.exitPopup.place(relx=.5, rely=.7, anchor=ctk.CENTER)
+                
+                self.popup.update()
+            else:
+                self.thicknessAC = float(
+                    self.leftFrame.stepThree.tacEntry.get()
+                )
+                
+                self.thicknessSubgrade = self.totalThickness \
+                                        - self.thicknessAC \
+                                        - self.thicknessBase \
+                                        - self.thicknessSubbase
+                
+                self.leftFrame.stepThree.tacLabel.configure(
+                    text=("Total AC thickness:              "
+                         + str(self.thicknessAC) + " m"))
         except ValueError:
-            self.popup = TopLevelWindow(self)
+            self.popup = TopLevelWindow(geometry="350x150")
             self.popup.title("Invalid selection!")
 
             self.popup.warningMessage = ctk.CTkLabel(self.popup,
-                text="Oops! You tried to enter an invalid value for the total "
+                text="Oops! \n"
+                        "You tried to enter an invalid value for the total "
                         "thickness. Ensure all values are entered as numeric",
-                wraplength=300, justify="center"
+                wraplength=350, justify="center"
             )
-            self.popup.warningMessage.place(relx=.5, rely=.5,
+            self.popup.warningMessage.place(relx=.5, rely=.3,
                                             anchor=ctk.CENTER)
             
             self.popup.exitPopup = ctk.CTkButton(master=self.popup,
@@ -1033,19 +1125,6 @@ class MainApp(ctk.CTkFrame):
             self.popup.exitPopup.place(relx=.5, rely=.7, anchor=ctk.CENTER)
             
             self.popup.update()
-        except self.thicknessAC + self.thicknessBase + self.thicknessSubbase \
-                > self.totalThickness:
-            self.popup = TopLevelWindow(geometry="300x150")
-            self.popup.title("Invalid asphalt concrete thickness!")
-            
-            self.popup.warningMessage = ctk.CTkLabel(self.popup,
-                text="Entered asphalt value causes negative subgrade value, "
-                        "enter new AC value, or update base/subbase thickness",
-                wraplength=300,
-                justify="center"
-            )
-            self.popup.warningMessage.place(relx=.5, rely=.5,
-                                            anchor=ctk.CENTER)
     
     def removeDepth(self):
         selected_index = self.leftFrame.stepFive.depthList.curselection()
@@ -1055,52 +1134,116 @@ class MainApp(ctk.CTkFrame):
             if self.thermo_depth[index] != 0:
                 self.thermo_depth.pop(index)
             else:
-                self.popup = TopLevelWindow(self)
+                self.popup = TopLevelWindow(geometry="300x150")
                 self.popup.title("Invalid deletion!")
                 
                 self.popup.warningMessage = ctk.CTkLabel(self.popup,
                     text="Unable to delete 0 (temperature at surface)",
-                    wraplength=300, justify="center")
-                self.popup.warningMessage.place(relx=.5, rely=.5,
-                                                anchor=ctk.CENTER)
+                    wraplength=300,
+                    justify="center"
+                )
+                self.popup.warningMessage.place(relx=.5,
+                                                rely=.3,
+                                                anchor=ctk.CENTER
+                )
+                self.popup.exitPopup = ctk.CTkButton(self.popup,
+                    text="Close pop-up window",
+                    command=lambda: self.closePopup(self.popup)
+                )
+                self.popup.exitPopup.place(relx=.5, rely=.7, anchor=ctk.CENTER)
+                
+                self.popup.update()
             self.update_depthlist()
         else:
             self.popup = TopLevelWindow(geometry="300x100")
-            self.popup.title("Nothins selected!")
+            self.popup.title("Nothing selected!")
             
-            self.popup.warningMessage(self.popup,
+            self.popup.warningMessage = ctk.CTkLabel(self.popup,
                                       text="No depth selected for deletion",
                                       wraplength=300, justify="center"
             )
-            self.popup.warningMessage.place(relx=.5, rely=.5,
+            self.popup.warningMessage.place(relx=.5,
+                                            rely=.3,
                                             anchor=ctk.CENTER
             )
+            self.popup.exitPopup = ctk.CTkButton(self.popup,
+                text="Close pop-up window",
+                command=lambda: self.closePopup(self.popup)
+            )
+            self.popup.exitPopup.place(relx=.5, rely=.7, anchor=ctk.CENTER)
+            
+            self.popup.update()
     
     def addDepth(self):
-        if len(self.thermo_depth) > 10:
-            self.popup = TopLevelWindow(self)
+        if len(self.thermo_depth) >= 10:
+            self.popup = TopLevelWindow(geometry="300x150")
             self.popup.title("Too many depths!")
+            
+            self.popup.warningMessage = ctk.CTkLabel(
+                self.popup,
+                text="You've entered more than 10 depths!\n"
+                        "Please only use the 10 most important depths.",
+                wraplength=300,
+                justify="center"
+            )
+            self.popup.warningMessage.place(relx=.5,
+                                            rely=.3,
+                                            anchor=ctk.CENTER
+            )
+            self.popup.exitPopup = ctk.CTkButton(self.popup,
+                text="Close pop-up window",
+                command=lambda: self.closePopup(self.popup)
+            )
+            self.popup.exitPopup.place(relx=.5, rely=.7, anchor=ctk.CENTER)
+            
+            self.popup.update()
         else:
             try:
                 # Read the value in and append it to the list
-                value = float(self.leftFrame.stepFive.depthEntry.get())
-                self.thermo_depth.append(value)
-                # Remove duplicates
-                self.thermo_depth = list(set(self.thermo_depth))
-                # Ensure the list stays in ascending order for readability
-                self.thermo_depth.sort()
-                self.leftFrame.stepFive.depthEntry.delete(0, 'end')
+                if float(self.leftFrame.stepFive.depthEntry.get()) \
+                        > self.totalThickness:
+                    self.popup = TopLevelWindow(geometry="300x100")
+                    self.popup.title("Invalid depth!")
+                    
+                    self.popup.warningMessage = ctk.CTkLabel(self.popup,
+                        text="Depth entered is larger than total depth, "
+                                "select new value",
+                        wraplength=300, justify="center"
+                    )
+                    self.popup.warningMessage.place(relx=.5,
+                                                     rely=.3,
+                                                     anchor=ctk.CENTER
+                    )
+                    self.popup.exitPopup = ctk.CTkButton(self.popup,
+                        text="Close pop-up window",
+                        command=lambda: self.closePopup(self.popup)
+                    )
+                    self.popup.exitPopup.place(relx=.5,
+                                               rely=.7,
+                                               anchor=ctk.CENTER
+                    )
+                    self.popup.update()
+                else:
+                    value = float(self.leftFrame.stepFive.depthEntry.get())
+                    self.thermo_depth.append(value)
+                    # Remove duplicates
+                    self.thermo_depth = list(set(self.thermo_depth))
+                    # Ensure the list stays in ascending order for readability
+                    self.thermo_depth.sort()
+                    self.leftFrame.stepFive.depthEntry.delete(0, 'end')
             except ValueError:
-                self.popup = TopLevelWindow(self)
+                self.popup = TopLevelWindow(geometry="300x150")
                 self.popup.title("Invalid selection!")
 
                 self.popup.warningMessage = ctk.CTkLabel(self.popup,
-                    text="Oops! You tried to enter an invalid value for the "
-                            "depth list. Ensure all depth values are entered "
+                    text="Oops!\n"
+                            "You tried to enter an invalid value for the "
+                            "depth list.\nEnsure all depth values are entered "
                             "as numeric",
-                    wraplength=300, justify="center"
+                    wraplength=300,
+                    justify="center"
                 )
-                self.popup.warningMessage.place(relx=.5, rely=.5,
+                self.popup.warningMessage.place(relx=.5, rely=.3,
                                                 anchor=ctk.CENTER
                 )
                 
@@ -1110,16 +1253,6 @@ class MainApp(ctk.CTkFrame):
                 )
                 self.popup.exitPp.place(relx=.5, rely=.7, anchor=ctk.CENTER)
                 
-                self.popup.update()
-            except value > self.totalThickness:
-                self.popup = TopLevelWindow(geometry="300x100")
-                self.popup.title("Invalid depth!")
-                
-                self.popup.warningMessage = ctk.CTkLabel(self.popup,
-                    text="Depth entered is larger than total depth, "
-                            "select new value",
-                    wraplength=300, justify="center"
-                )
                 self.popup.update()
         self.update_depthlist()
     
@@ -1157,12 +1290,12 @@ class MainApp(ctk.CTkFrame):
             self.simulation_thread.start()
         elif shared.running.is_set():
             # The simulation is already running, notify the user to be patient
-            self.popup = TopLevelWindow(self)
+            self.popup = TopLevelWindow(geometry="350x150")
             self.popup.title("Please wait!")
             
             self.popup.pleaseWait = ctk.CTkLabel(self.popup,
-                text="Please wait while the simulation is running (popup will "
-                        "close). Running the simulation more than once at a "
+                text="Please wait while the simulation is running."
+                        "\nRunning the simulation more than once at a "
                         "time is not advised due to hardware requirements",
                 wraplength=300,
                 justify="center"
@@ -1180,7 +1313,7 @@ class MainApp(ctk.CTkFrame):
             )
             self.popup.noProjFolder.place(relx=.5, rely=.5, anchor=ctk.CENTER)
         else:
-            self.popup = TopLevelWindow(self)
+            self.popup = TopLevelWindow(geometry="300x150")
             self.popup.title("Missing data!")
             
             needed = ""
@@ -1200,7 +1333,7 @@ class MainApp(ctk.CTkFrame):
             self.popup.pleaseWait.pack()
             
     def run_simulation_in_thread(self):
-        self.popup = TopLevelWindow(self)
+        self.popup = TopLevelWindow(geometry="350x150")
         self.popup.title("Simulation running, please wait")
         
         self.popup.pleaseWait = ctk.CTkLabel(self.popup,
@@ -1227,7 +1360,9 @@ class MainApp(ctk.CTkFrame):
                        thickness_AC=self.thicknessAC,
                        thickness_Base=self.thicknessBase,
                        thickness_subbase=self.thicknessSubbase,
-                       thickness_subgrade=self.thicknessSubgrade
+                       thickness_subgrade=self.thicknessSubgrade,
+                       delta_e_1=self.deltaE1,
+                       delta_e_6=self.deltaE6
                        )
         
         shared.running.clear()
@@ -1235,7 +1370,7 @@ class MainApp(ctk.CTkFrame):
         self.closePopup(self.popup)
             
     def blockSelectFile(self):
-        self.popup = TopLevelWindow(self)
+        self.popup = TopLevelWindow(geometry="350x150")
         self.popup.title("Oh No!")
 
         self.popup.choice = ctk.CTkLabel(self.popup,
@@ -1273,7 +1408,7 @@ class MainApp(ctk.CTkFrame):
                     )
                 else:
                     self.solarFile = None
-                    self.popup = TopLevelWindow(self)
+                    self.popup = TopLevelWindow(geometry="300x150")
                     self.popup.title("Bad file input, expected .xlsx")
                     
                     self.popup.warning = ctk.CTkLabel(self.popup,
@@ -1297,7 +1432,7 @@ class MainApp(ctk.CTkFrame):
                     )
                 else:
                     self.windFile = None
-                    self.popup = TopLevelWindow(self)
+                    self.popup = TopLevelWindow(geometry="300x150")
                     self.popup.title("Bad file input, expected .xlsx")
                     
                     self.popup.warning = ctk.CTkLabel(self.popup,
@@ -1320,7 +1455,7 @@ class MainApp(ctk.CTkFrame):
                     )
                 else:
                     self.tempFile = None
-                    self.popup = TopLevelWindow(self)
+                    self.popup = TopLevelWindow(geometry="300x150")
                     self.popup.title("Bad file input, expected .xlsx")
                     
                     self.popup.warning = ctk.CTkLabel(self.popup,

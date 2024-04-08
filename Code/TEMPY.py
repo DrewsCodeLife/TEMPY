@@ -50,8 +50,9 @@ alpha_subbase = k_subbase / rho_subbase / cp_subbase * 3600
 alpha_subgrade = k_subgrade / rho_subgrade / cp_subgrade * 3600
 alpha_water = k_water / rho_water / cp_water * 3600
 
-def run_simulation(post_process, Ucode, solarFile = None, windFile = None, tempFile = None, Thermo_depth = [],
-                   thickness_AC = 0, thickness_Base = 0, thickness_subbase = 0, thickness_subgrade = 0):
+def run_simulation(post_process, Ucode, solarFile=None, windFile=None, tempFile=None, Thermo_depth=[],
+                   thickness_AC=0, thickness_Base=0, thickness_subbase=0, thickness_subgrade=0,
+                   delta_e_1=-.15, delta_e_6=-.12):
     # find environmental data, e.g T_air, from excel
 
     env_temp_data = xl.load_workbook(tempFile)
