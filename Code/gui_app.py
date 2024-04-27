@@ -76,7 +76,7 @@ class MainApp(ctk.CTkFrame):
                                 - self.thicknessSubbase
         
         # For now, we initialize
-        self.thermo_depth = [0]
+        self.thermo_depth = []
         self.deltaE1 = -0.15
         self.deltaE6 = -0.12
         
@@ -279,6 +279,7 @@ class MainApp(ctk.CTkFrame):
         self.leftFrame.stepFour.left.recBox = ctk.CTkComboBox(
             self.leftFrame.stepFour.left,
             values=eaf.state,
+            width=200,
             command=self.recommendedE1E6
         )
         self.leftFrame.stepFour.left.recBox.place(relx=.5,
@@ -1129,31 +1130,7 @@ class MainApp(ctk.CTkFrame):
     def removeDepth(self):
         selected_index = self.leftFrame.stepFive.depthList.curselection()
         if selected_index is not None:
-            index = int(selected_index)
-            # Prevent user from deleting 0
-            if self.thermo_depth[index] != 0:
-                self.thermo_depth.pop(index)
-            else:
-                self.popup = TopLevelWindow(geometry="300x150")
-                self.popup.title("Invalid deletion!")
-                
-                self.popup.warningMessage = ctk.CTkLabel(self.popup,
-                    text="Unable to delete 0 (temperature at surface)",
-                    wraplength=300,
-                    justify="center"
-                )
-                self.popup.warningMessage.place(relx=.5,
-                                                rely=.3,
-                                                anchor=ctk.CENTER
-                )
-                self.popup.exitPopup = ctk.CTkButton(self.popup,
-                    text="Close pop-up window",
-                    command=lambda: self.closePopup(self.popup)
-                )
-                self.popup.exitPopup.place(relx=.5, rely=.7, anchor=ctk.CENTER)
-                
-                self.popup.update()
-            self.update_depthlist()
+            self.thermo_depth.pop(int(selected_index))
         else:
             self.popup = TopLevelWindow(geometry="300x100")
             self.popup.title("Nothing selected!")
