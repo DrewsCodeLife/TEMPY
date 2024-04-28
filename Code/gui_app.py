@@ -14,6 +14,7 @@ import ctypes
 import tkinter as tk
 import customtkinter as ctk
 import CTkMenuBar as ctkmb
+import statistics_calc as stclc
 import environmental_adjustment_fetcher as eaf
 from ctypes import wintypes
 from CTkListbox import CTkListbox
@@ -76,7 +77,7 @@ class MainApp(ctk.CTkFrame):
                                 - self.thicknessSubbase
         
         # For now, we initialize
-        self.thermo_depth = []
+        self.thermo_depth = [.02]
         self.deltaE1 = -0.15
         self.deltaE6 = -0.12
         
@@ -1319,8 +1320,9 @@ class MainApp(ctk.CTkFrame):
         )
         self.popup.pleaseWait.pack()
         
-        # Ensure the list has 0, remove duplicates, sort in ascending order
-        self.thermo_depth.append(0)
+        # Ensure the list has .02 (used for Max temperature calculation)
+        self.thermo_depth.append(.02)
+        # remove duplicates
         self.thermo_depth = list(set(self.thermo_depth))
         self.thermo_depth.sort()
         
@@ -1345,6 +1347,8 @@ class MainApp(ctk.CTkFrame):
         shared.running.clear()
         shared.endEarly.clear()
         self.closePopup(self.popup)
+        
+        self.get_statistics()
             
     def blockSelectFile(self):
         self.popup = TopLevelWindow(geometry="350x150")
@@ -1462,6 +1466,13 @@ class MainApp(ctk.CTkFrame):
         # Repopulate with the values in thermo_depth
         for depth in self.thermo_depth:
             self.leftFrame.stepFive.depthList.insert(ctk.END, depth)
+    
+    def get_statistics(self):
+        if shared.running.is_set():
+            print("repeat call")
+            self.get_statistics().after(5000, self.get_statistics())
+        else:
+            stclc.run_calculations()
         
     def _quit(self):
         shared.endEarly.set()

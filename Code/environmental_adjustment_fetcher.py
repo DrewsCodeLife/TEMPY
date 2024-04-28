@@ -23,5 +23,5 @@ adjustment_data = adjustment_file['Sheet1']
 for i in range(2, 30):
     state.append(str(adjustment_data.cell(i, 3).value) + " county, "
                  + str(adjustment_data.cell(i, 2).value))
-    e1.append(adjustment_data.cell(i, 5).value)
-    e6.append(adjustment_data.cell(i, 6).value)
+    e1.append(adjustment_data.cell(i, 6).value)
+    e6.append(adjustment_data.cell(i, 7).value)

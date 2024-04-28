@@ -327,16 +327,7 @@ def run_simulation(post_process, Ucode, solarFile=None, windFile=None, tempFile=
     ws_Sheet.cell(1, 1).value = "Date"
     ws_Sheet.cell(1, 2).value = "time"
     ws_Sheet.cell(1, 3).value = 'surface'
-    # ws_Sheet.cell(1, 4).value = 'Thermo_1'
-    # ws_Sheet.cell(1, 5).value = 'Thermo_2'
-    # ws_Sheet.cell(1, 6).value = 'Thermo_3'
-    # ws_Sheet.cell(1, 7).value = 'Thermo_4'
-    # ws_Sheet.cell(1, 8).value = 'Thermo_5'
-    # ws_Sheet.cell(1, 9).value = 'Thermo_6'
-    # ws_Sheet.cell(1, 10).value = 'Thermo_7'
-    # ws_Sheet.cell(1, 11).value = 'Thermo_8'
-    # ws_Sheet.cell(1, 12).value = 'Thermo_9'
-    # ws_Sheet.cell(1, 13).value = 'Thermo_10'
+
     itr = 4
     for depth in Thermo_depth:
         ws_Sheet.cell(1, itr).value = str(depth) + ' m'
