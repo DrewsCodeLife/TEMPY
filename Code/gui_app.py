@@ -511,39 +511,40 @@ class MainApp(ctk.CTkFrame):
             self.leftFrame.stepSeven, text="Run",
             command=self.simulation_button
         )
-        self.leftFrame.stepSeven.simRunButton.pack(padx=5,
-                                                   pady=5,
-                                                   side=ctk.LEFT
-        )
+        self.leftFrame.stepSeven.simRunButton.place(relx=.018,
+                                                    rely=.5,
+                                                    anchor="w")
+        
         self.leftFrame.stepSeven.simPauseButton = ctk.CTkButton(
             self.leftFrame.stepSeven, text="Pause", command=None  # ADD COMMAND
         )
-        self.leftFrame.stepSeven.simPauseButton.pack(padx=5,
-                                                     pady=5,
-                                                     side=ctk.LEFT
-        )
+        self.leftFrame.stepSeven.simPauseButton.place(relx=.265,
+                                                       rely=.5,
+                                                       anchor="w")
+        
         self.leftFrame.stepSeven.simStopButton = ctk.CTkButton(
             self.leftFrame.stepSeven, text="Stop", command=self.stopSim
         )
-        self.leftFrame.stepSeven.simStopButton.pack(padx=5,
-                                                    pady=5,
-                                                    side=ctk.LEFT
-        )
+        self.leftFrame.stepSeven.simStopButton.place(relx=.5125,
+                                                     rely=.5,
+                                                     anchor="w")
         
         self.leftFrame.stepSeven.statsBox = ctk.CTkCheckBox(
             self.leftFrame.stepSeven, text="Run statistics",
+            checkbox_width=12,
+            checkbox_height=12,
             variable=self.statsBool, onvalue=True, offvalue=False
         )
-        self.leftFrame.stepSeven.statsBox.pack(padx=5,
-                                               pady=5,
-                                               side=ctk.LEFT)
-        '''
+        self.leftFrame.stepSeven.statsBox.place(relx=.75, rely=.25, anchor="w")
+        
         self.leftFrame.stepSeven.pp_box = ctk.CTkCheckBox(
-            self.rightFrame.simFrame, text="Post Processing Plot",
+            self.leftFrame.stepSeven, text="Post Processing Plot",
+            checkbox_width=12,
+            checkbox_height=12,
             variable=self.post_process, onvalue=True, offvalue=False
         )
-        self.leftFrame.stepSeven.pp_box.place(relx=.05, rely=.05, anchor="nw")
-        
+        self.leftFrame.stepSeven.pp_box.place(relx=.75, rely=.75, anchor="w")
+        '''
         self.leftFrame.stepSeven.uc_box = ctk.CTkCheckBox(
             self.rightFrame.simFrame, text="Calibration by Ucode",
             variable=self.Ucode, onvalue=True, offvalue=False
@@ -1533,7 +1534,7 @@ class MainApp(ctk.CTkFrame):
             print("repeat call")
             self.get_statistics().after(5000, self.get_statistics())
         else:
-            stclc.run_calculations()
+            numYears = stclc.run_calculations()
             
             self.rightFrame.bottom.info = ctk.CTkFrame(self.rightFrame.bottom)
             self.rightFrame.bottom.info.pack(padx=5, pady=5, side=ctk.LEFT)
@@ -1605,62 +1606,71 @@ class MainApp(ctk.CTkFrame):
                                                        pady=5,
                                                        side=ctk.TOP)
             
-            for i in range(0, stclc.numYears):
-                print("Creating frame for the year")
-                frame = ctk.CTkFrame(self.rightFrame.bottom)
-                self.rightFrame.bottom.frame.pack(relx=5, rely=5, side=ctk.LEFT)
+            for i in range(0, numYears):
+                self.rightFrame.bottom.frame = ctk.CTkFrame(
+                    self.rightFrame.bottom)
+                self.rightFrame.bottom.frame.pack(padx=5,
+                                                  pady=5,
+                                                  side=ctk.LEFT)
                 
                 self.rightFrame.bottom.frame.title = ctk.CTkLabel(
                     self.rightFrame.bottom.frame, text="Year " + str(i + 1))
-                self.rightFrame.bottom.frame.title.pack(relx=5,
-                                                        rely=5,
+                self.rightFrame.bottom.frame.title.pack(padx=5,
+                                                        pady=5,
                                                         side=ctk.TOP)
                 
                 self.rightFrame.bottom.frame.maxSurf7 = ctk.CTkLabel(
                     self.rightFrame.bottom.frame,
                     text=str(stclc.max7daySurf[i]))
-                self.rightFrame.bottom.frame.max7.pack(relx=5,
-                                                       rely=5,
-                                                       side=ctk.TOP)
+                self.rightFrame.bottom.frame.maxSurf7.pack(padx=5,
+                                                           pady=5,
+                                                           side=ctk.TOP)
                 self.rightFrame.bottom.frame.max20mm7 = ctk.CTkLabel(
                     self.rightFrame.bottom.frame,
                     text=str(stclc.max7day20mm[i]))
-                self.rightFrame.bottom.frame.max20mm7.pack(relx=5,
-                                                       rely=5,
-                                                       side=ctk.TOP)
+                self.rightFrame.bottom.frame.max20mm7.pack(padx=5,
+                                                           pady=5,
+                                                           side=ctk.TOP)
                 
                 self.rightFrame.bottom.frame.maxSurf3 = ctk.CTkLabel(
                     self.rightFrame.bottom.frame,
                     text=str(stclc.max3daySurf[i]))
-                self.rightFrame.bottom.frame.maxSurf3.pack(relx=5,
-                                                       rely=5,
-                                                       side=ctk.TOP)
+                self.rightFrame.bottom.frame.maxSurf3.pack(padx=5,
+                                                           pady=5,
+                                                           side=ctk.TOP)
                 self.rightFrame.bottom.frame.max20mm3 = ctk.CTkLabel(
                     self.rightFrame.bottom.frame,
                     text=str(stclc.max3day20mm[i]))
-                self.rightFrame.bottom.frame.max20mm3.pack(relx=5,
-                                                       rely=5,
-                                                       side=ctk.TOP)
+                self.rightFrame.bottom.frame.max20mm3.pack(padx=5,
+                                                           pady=5,
+                                                           side=ctk.TOP)
                 
                 self.rightFrame.bottom.frame.maxSurf1 = ctk.CTkLabel(
                     self.rightFrame.bottom.frame,
                     text=str(stclc.max1daySurf[i]))
-                self.rightFrame.bottom.frame.maxSurf1.pack(relx=5,
-                                                       rely=5,
-                                                       side=ctk.TOP)
+                self.rightFrame.bottom.frame.maxSurf1.pack(padx=5,
+                                                           pady=5,
+                                                           side=ctk.TOP)
                 self.rightFrame.bottom.frame.max20mm1 = ctk.CTkLabel(
                     self.rightFrame.bottom.frame,
                     text=str(stclc.max1day20mm[i]))
-                self.rightFrame.bottom.frame.max20mm1.pack(relx=5,
-                                                       rely=5,
-                                                       side=ctk.TOP)
+                self.rightFrame.bottom.frame.max20mm1.pack(padx=5,
+                                                           pady=5,
+                                                           side=ctk.TOP)
+                
+                self.rightFrame.bottom.frame.divider = ctk.CTkLabel(
+                    self.rightFrame.bottom.frame,
+                    text="------------------")
+                self.rightFrame.bottom.frame.divider.pack(padx=5,
+                                                          pady=5,
+                                                          side=ctk.TOP)
                 
                 self.rightFrame.bottom.frame.min = ctk.CTkLabel(
                     self.rightFrame.bottom.frame,
                     text=str(stclc.min1daySurf[i]))
-                self.rightFrame.bottom.frame.min.pack(relx=5,
-                                                       rely=5,
-                                                       side=ctk.BOTTOM)
+                self.rightFrame.bottom.frame.min.pack(padx=5,
+                                                      pady=5,
+                                                      side=ctk.BOTTOM)
                 
                 # self.statFrames.append(frame)
             

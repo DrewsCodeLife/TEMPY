@@ -358,10 +358,9 @@ def run_simulation(post_process, Ucode, solarFile=None, windFile=None, tempFile=
         post_processing(Thermo_depth)
     if (Ucode == True):
         uCode(Thermo_depth)
-        
-    print("Simulation Complete")
+
    
-def post_processing(Thermo_depth = []):
+def post_processing(Thermo_depth=[]):
     results_path = shared.proj_folder_long
 
     results_name = "\\" + shared.proj_name + '-Simulation.xlsx'
