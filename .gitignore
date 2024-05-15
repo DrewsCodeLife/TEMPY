@@ -1,5 +1,12 @@
 .xlsx
-Deprecated/
-Code/Environmental Adjustments/1.Summary-Plot (1).xlsx
-Code/__pycache__/
+.7z
 Documentation/
+Deprecated/
+Results/testProj-Simulation.xlsx
+Data/
+Code/Environmental Adjustments/1.Summary-Plot (1).xlsx
+Code/dist.7z
+Code/gui_app.spec
+Code/__pycache__/
+Code/build/
+Code/dist/

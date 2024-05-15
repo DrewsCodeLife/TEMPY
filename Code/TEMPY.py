@@ -361,10 +361,86 @@ def run_simulation(post_process, Ucode, solarFile=None, windFile=None, tempFile=
 
    
 def post_processing(Thermo_depth=[]):
+    Thermo_NO_flag = len(Thermo_depth)
+    
     results_path = shared.proj_folder_long
-
     results_name = "\\" + shared.proj_name + '-Simulation.xlsx'
+    results_loc = results_path + results_name
+    
+    df = pd.read_excel(results_loc, header=None, skiprows=2)
+    
+    # Convert date to total seconds since 01/01/1970 00:00:00
+    df[0] = (df[0] - datetime(1970, 1, 1)).dt.total_seconds()
+    
+    for thermo_id in range(4, len(Thermo_depth) + 4):
+        X = df[[0]].values # Fetch dates
+        y = df[thermo_id].values # Simulation temperatures
+        
+        reg = LinearRegression(fit_intercept=False).fit(X, y)
+        # a.append(reg.coef_)
 
+        # plot scatter points
+        fig = plt.figure(num = 1) # figure size; figsize=(3,50)
+
+        fig.add_subplot(1, Thermo_NO_flag, thermo_id) # total row, total column, position,xscale = "linear"
+
+        # plt.scatter(x,y,s=1) # s is circle size
+        plt.scatter(y, s=1)
+
+        plt.xlabel('Test Temperature ($^\circ$C)', fontsize=10)
+        plt.ylabel('Simulation Temperature ($^\circ$C)', fontsize=10)
+        plt.title('Depth='+ str(Thermo_depth[thermo_id-1]) +'m') # add subplot title
+
+        lower_ylim = int(round( (min(y) - 5) / 5) * 5) # obtain lower limit to the neareast 5
+        upper_ylim = int(round( (max(y) + 5) / 5) * 5) # obtain upper limit to the neareast 5
+        lim_rangeY = [lower_ylim, upper_ylim] # define plot range integer
+        plt.ylim(lim_rangeY)
+
+        lower_xlim = int(round( (min(X) - 5) / 5))
+        upper_xlim = int(round( (max(X) - 5) / 5))
+        lim_rangeX = [lower_xlim, upper_xlim]
+        plt.xlim(lim_rangeX)
+
+        plt.plot(X, y, 'r') # add line of equity, x_lim, y_lim,color = 'r' , 'k'
+
+        # plot regression
+        #x_new = np.linspace(lower_lim,upper_lim,num=10) # create x for regression plot
+
+        #y_new = LinearRegression().predict(x_new[:,np.newaxis])
+
+        x_new = numpy.array(X).reshape(-1,1)
+        y_new = x_new * reg.coef_
+        #print(x_new, y_new)
+
+        plt.plot(x_new, y_new, '--k') # linear regression plot; black dashed line; reg.coef = a
+
+        # also add equation, R2, and MAE
+
+        equation = 'y=' + str(round(reg.coef_[0,0],3))+ 'x'  # reg.coef_ is array
+
+        ## plt.text(lower_lim+10, upper_lim-5, equation, fontsize = 11)
+        # plt.text(lower_lim+10, upper_lim-7, '$R^{2}$=' + str(round(reg.score(x_reg, y_reg),3)), fontsize = 11) # round to 3 decimals
+        ## plt.text(lower_lim+10, upper_lim-7, '$R^{2}$=' + str(round(reg.score(y_reg),3)), fontsize = 11)
+        # plt.text(lower_lim+10, upper_lim-9, 'MAE=' + str(round(mean_abs_error[thermo_id-1],3))+'$^\circ$C', fontsize = 11)
+
+        # plot the temperature with date
+        fig2 = plt.figure()  #num = 2
+        fig2.add_subplot() # if individual figures are preferred, do not define arguments; Thermo_NO_flag,1,thermo_id
+        # plt.plot(date, x, 'r', label='Test Temperature') # test temperature
+        plt.plot(X, y,'b', label = 'Simulation Temperature') # simulation temperature
+        plt.xlabel('Date', fontsize=12)
+        plt.ylabel('Temperature ($^\circ$C)', fontsize=12)
+        plt.title('Depth='+ str(Thermo_depth[thermo_id-1]) +'m') # add subplot title
+        plt.ylim(lim_rangeY)
+        plt.xlim(lim_rangeX)
+        plt.legend(loc=2, prop={'size': 10})  # loc=0 is best, upper right = 1, upper left = 2
+
+        plt.tight_layout()
+        plt.show()
+    
+    ### PRE CHANGES (although certain comment blocks have been lost) ###
+
+    '''
     Test_data_path = shared.proj_folder_long
     Test_data_name = shared.proj_name + '-Raw.xlsx'
     Test_data = xl.load_workbook(Test_data_path + "\\" + Test_data_name)
@@ -372,8 +448,8 @@ def post_processing(Thermo_depth=[]):
     Max_Row_Data = Data_sheet.max_row
     #print(Max_Row_Data)
 
-    #print(Data_sheet.cell(3, 2).value)
-    #print(Data_sheet.cell(13, 3).value)
+    print(Data_sheet.cell(3, 2).value)
+    print(Data_sheet.cell(13, 3).value)
 
     Sim_data = xl.load_workbook(results_path + results_name)
     Sim_result = Sim_data['Sheet1']
@@ -395,19 +471,21 @@ def post_processing(Thermo_depth=[]):
     time_flag = 3
     Thermo_NO_flag = 1 # start from the first thermocouple number
 
-    for time_row in range(3, Max_Row_Data+1):
+    for time_row in range(3, Sim_result.max_row + 1):
 
-        Date = str(Data_sheet.cell(time_row, 2).value)
-        Year = int(Date[0])*1000 + int(Date[1])*100 + int(Date[2])*10 + int(Date[3])
+        Date = str(Sim_result.cell(time_row, 1).value)
+        Year = int(Date[0]) * 1000 + int(Date[1])*100 \
+                                   + int(Date[2])*10 \
+                                   + int(Date[3])
         Month = int(Date[5]) *10 + int(Date[6])
         Day = int(Date[8]) *10 + int(Date[9])
 
 
         #Time = str(Data_sheet.cell(time_row, 3).value)
         #Hour = int(Time[0]) * 10 + int(Time[1])
-        Hour = Data_sheet.cell(time_row, 3).value
+        Hour = Sim_result.cell(time_row, 3).value
         #AM_PM = (Time[9]) + (Time[10])
-        '''
+        ```
         if Hour == 24:
             Hour = 0
 
@@ -435,7 +513,7 @@ def post_processing(Thermo_depth=[]):
 
             else:
                 Day = Day + 1
-        '''
+        ```
         print('Test = ', Year, Month, Day, Hour)
         #print('time_row=', time_row)
 
@@ -472,7 +550,7 @@ def post_processing(Thermo_depth=[]):
                 if Sim_Year == Year and Sim_Month == Month and Sim_Day == Day and Sim_Hour == Hour:
                     date_time_str = str(Sim_date[0:10]) + ' ' + str(Sim_Time)
                     Sim_result.cell(sim_time_row-row_correction, 15).value = datetime.strptime(date_time_str, '%Y-%m-%d %I:%M:%S %p')
-                    '''
+                    ```
                     if Sim_Hour < 10:
                         #date_time_str = str(Sim_Year) + '/' + str(Sim_Month) + '/' + str(Sim_Day) + ' ' + '0' + str(Sim_Hour) + ':00:00'
                         date_time_str = str(Sim_date[0:9]) + ' ' + str(Sim_Time)
@@ -481,7 +559,6 @@ def post_processing(Thermo_depth=[]):
                     if Sim_Hour >= 10:
                         date_time_str = str(Sim_Year) + '/' + str(Sim_Month) + '/' + str(Sim_Day) + ' ' + str(Sim_Hour) + ':00:00'
                         Sim_result.cell(sim_time_row-row_correction, 15).value = datetime.strptime(date_time_str, '%y/%m/%d %H:%M:%S')
-                    '''
                     for Thermo_ID in range(0, len(Thermo_depth)):
 
                         Sim_result.cell(sim_time_row-row_correction, Thermo_ID+16).value = Data_sheet.cell(time_row, Thermo_ID+5).value  # [5:5+len(Thermo_depth)+1], assign test value to simulation file and may need to shift it 1-2 hours ahead. Time zone?
@@ -491,9 +568,31 @@ def post_processing(Thermo_depth=[]):
                         #print('time_flag=', time_flag, Thermo_NO_flag)
                         print('Sim=', Sim_Year, Sim_Month, Sim_Day, Sim_Hour)
                         #break
+    
+    for sim_time_row in range(time_flag, Sim_result.max_row+1):       
+        Sim_date = str(Sim_result.cell(sim_time_row, 1).value)
+
+        Sim_Year = int(Sim_date[0])*1000 + int(Sim_date[1])*100 + int(Sim_date[2])*10 + int(Sim_date[3])
+        Sim_Month = int(Sim_date[5]) *10 + int(Sim_date[6])
+        Sim_Day = int(Sim_date[8]) *10 + int(Sim_date[9])
+
+        Sim_Time = str(Sim_result.cell(sim_time_row, 2).value)
+
+        Sim_Hour = int(Sim_Time[0])*10 + int(Sim_Time[1])
+        Sim_AM_PM = (Sim_Time[9]) + (Sim_Time[10])
+
+
+        if Sim_Hour == 12 and Sim_AM_PM == 'AM':  # 12 AM = 0
+            Sim_Hour = 0
+
+        if Sim_AM_PM == 'PM' and Sim_Hour != 12:
+            Sim_Hour = Sim_Hour + 12
+
+    date_time_str = str(Sim_date[0:10]) + ' ' + str(Sim_Time)
+    Sim_result.cell(sim_time_row-row_correction, 15).value = datetime.strptime(date_time_str, '%Y-%m-%d %I:%M:%S %p')
 
     Sim_data.save(results_path + results_name)
-
+    
     # error calculation
     results_path = shared.proj_folder_long
 
@@ -507,36 +606,37 @@ def post_processing(Thermo_depth=[]):
     a = [] # slope y = ax
 
     Thermo_NO_flag = len(Thermo_depth)
+    
+    # THIS DOWN
 
     for thermo_id in range(1, Thermo_NO_flag+1):
 
-        x = [] # list for test value
+        # x = [] # list for test value
         y = [] # list for simulation value
         date = []
 
-        error_number = 0
-        error_sum = 0
+        value_num = 0
 
         for sim_time_row in range(3, Sim_result.max_row+1):
-            if Sim_result.cell(sim_time_row, thermo_id + 15).value is not None:
-                error_sum += abs(Sim_result.cell(sim_time_row, thermo_id + 15).value - Sim_result.cell(sim_time_row, thermo_id + 3).value)
-                error_number += 1
-                x.append(Sim_result.cell(sim_time_row, thermo_id + 15).value) # test value
-                y.append(Sim_result.cell(sim_time_row, thermo_id + 3).value) # sim value
-                date.append(Sim_result.cell(sim_time_row, 15).value) # date value
-        print(error_number)
+            value_num += 1
+            y.append(Sim_result.cell(sim_time_row, thermo_id + 3).value) # sim value
+            date.append(Sim_result.cell(sim_time_row, 15).value) # date value
+        print(value_num)
                 #print(thermo_id, sim_time_row, type(Sim_result.cell(sim_time_row, thermo_id + 15).value))
 
-        mean_abs_error[thermo_id-1] = round(error_sum / error_number, 5) # round to 5 decimals
+        # mean_abs_error[thermo_id-1] = round(error_sum / error_number, 5) # round to 5 decimals
 
         #slope, intercept, r_value, p_value, std_err = stats.linregress(x,y)
         #R2.append(r_value**2)
 
-        x_reg = numpy.array(x).reshape(-1,1) # convert list to 2D array
+        date_num = [(d - datetime(1970, 1, 1)).total_seconds() for d in date if d is not None]
+        date_reg = numpy.array(date_num).reshape(-1,1) # convert list to 2D array
         y_reg = numpy.array(y).reshape(-1,1)
 
-        reg = LinearRegression(fit_intercept = False).fit(x_reg,y_reg) # fit_intercept = false (b = 0)
-        R2.append(reg.score(x_reg, y_reg)) # coefficient of determination R2
+        # reg = LinearRegression(fit_intercept = False).fit(x_reg,y_reg) # fit_intercept = false (b = 0)
+        reg = LinearRegression(fit_intercept=False).fit(date_reg, y_reg)
+        # R2.append(reg.score(x_reg, y_reg)) # coefficient of determination R2
+        R2.append(reg.score(y_reg))
         a.append(reg.coef_)
 
 
@@ -545,14 +645,15 @@ def post_processing(Thermo_depth=[]):
 
         fig.add_subplot(1,Thermo_NO_flag,thermo_id) # total row, total column, position,xscale = "linear"
 
-        plt.scatter(x,y,s=1) # s is circle size
+        # plt.scatter(x,y,s=1) # s is circle size
+        plt.scatter(y, s=1)
 
         plt.xlabel('Test Temperature ($^\circ$C)', fontsize=10)
         plt.ylabel('Simulation Temperature ($^\circ$C)', fontsize=10)
         plt.title('Depth='+ str(Thermo_depth[thermo_id-1]) +'m') # add subplot title
 
-        lower_lim = int(round(min(numpy.min(x_reg)-5,numpy.min(y_reg)-5)/5.0)*5.0) # obtain lower limit to the neareast 5
-        upper_lim = int(round(max(numpy.max(x_reg)+5,numpy.max(y_reg)+5)/5.0)*5.0) # obtain upper limit to the neareast 5
+        lower_lim = int(round(min(numpy.min(y_reg)-5,numpy.min(y_reg)-5)/5.0)*5.0) # obtain lower limit to the neareast 5
+        upper_lim = int(round(max(numpy.max(y_reg)+5,numpy.max(y_reg)+5)/5.0)*5.0) # obtain upper limit to the neareast 5
 
         lim_range = [lower_lim,upper_lim] # define plot range integer
 
@@ -577,13 +678,14 @@ def post_processing(Thermo_depth=[]):
         equation = 'y=' + str(round(reg.coef_[0,0],3))+ 'x'  # reg.coef_ is array
 
         plt.text(lower_lim+10, upper_lim-5, equation, fontsize = 11)
-        plt.text(lower_lim+10, upper_lim-7, '$R^{2}$=' + str(round(reg.score(x_reg, y_reg),3)), fontsize = 11) # round to 3 decimals
-        plt.text(lower_lim+10, upper_lim-9, 'MAE=' + str(round(mean_abs_error[thermo_id-1],3))+'$^\circ$C', fontsize = 11)
+        # plt.text(lower_lim+10, upper_lim-7, '$R^{2}$=' + str(round(reg.score(x_reg, y_reg),3)), fontsize = 11) # round to 3 decimals
+        plt.text(lower_lim+10, upper_lim-7, '$R^{2}$=' + str(round(reg.score(y_reg),3)), fontsize = 11)
+        # plt.text(lower_lim+10, upper_lim-9, 'MAE=' + str(round(mean_abs_error[thermo_id-1],3))+'$^\circ$C', fontsize = 11)
 
         # plot the temperature with date
         fig2 = plt.figure()  #num = 2
         fig2.add_subplot() # if individual figures are preferred, do not define arguments; Thermo_NO_flag,1,thermo_id
-        plt.plot(date, x, 'r', label='Test Temperature') # test temperature
+        # plt.plot(date, x, 'r', label='Test Temperature') # test temperature
         plt.plot(date, y,'b', label = 'Simulation Temperature') # simulation temperature
         plt.xlabel('Date', fontsize=12)
         plt.ylabel('Temperature ($^\circ$C)', fontsize=12)
@@ -594,9 +696,10 @@ def post_processing(Thermo_depth=[]):
     plt.tight_layout()
     plt.show()
 
-    print('MAE=', mean_abs_error)
+    # print('MAE=', mean_abs_error)
     print('R2=', R2)
     print('Slope=',a)
+    '''
     
 def uCode(Thermo_depth = []):
     results_path = shared.proj_folder_long

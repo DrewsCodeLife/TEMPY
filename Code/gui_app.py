@@ -1307,6 +1307,9 @@ class MainApp(ctk.CTkFrame):
                     delta_e_1=self.deltaE1,
                     delta_e_6=self.deltaE6),
                 daemon=True)
+            for widget in self.rightFrame.bottom.winfo_children():
+                widget.destroy()
+            self.rightFrame.bottom.update()
             self.simulation_thread.start()
             if self.statsBool:
                 self.get_statistics()
@@ -1424,7 +1427,7 @@ class MainApp(ctk.CTkFrame):
                     self.leftFrame.stepSix.solarFileLabel.configure(
                         text=self.solarFileShort
                     )
-                else:
+                elif self.solarFile:
                     self.solarFile = None
                     self.popup = TopLevelWindow(geometry="300x150")
                     self.popup.title("Bad file input, expected .xlsx")
@@ -1448,7 +1451,7 @@ class MainApp(ctk.CTkFrame):
                     self.leftFrame.stepSix.windFileLabel.configure(
                         text=self.windFileShort
                     )
-                else:
+                elif self.windFile:
                     self.windFile = None
                     self.popup = TopLevelWindow(geometry="300x150")
                     self.popup.title("Bad file input, expected .xlsx")
@@ -1471,7 +1474,7 @@ class MainApp(ctk.CTkFrame):
                     self.leftFrame.stepSix.tempFileLabel.configure(
                         text=self.tempFileShort
                     )
-                else:
+                elif self.tempFile:
                     self.tempFile = None
                     self.popup = TopLevelWindow(geometry="300x150")
                     self.popup.title("Bad file input, expected .xlsx")
@@ -1543,49 +1546,49 @@ class MainApp(ctk.CTkFrame):
                 self.rightFrame.bottom.info,
                 text="Max",
                 justify="left",
-                font=("Segoe UI", 12,"underline"))
+                font=("Segoe UI", 12, "underline"))
             self.rightFrame.bottom.info.maxTitle.pack(padx=5,
                                                       pady=5,
                                                       side=ctk.TOP)
             
             self.rightFrame.bottom.info.max7SurfTitle = ctk.CTkLabel(
                 self.rightFrame.bottom.info,
-                text="7 day surface: ")
+                text="7 day ave. @ surface: ")
             self.rightFrame.bottom.info.max7SurfTitle.pack(padx=5,
                                                        pady=5,
                                                        side=ctk.TOP)
             
             self.rightFrame.bottom.info.max720mmTitle = ctk.CTkLabel(
                 self.rightFrame.bottom.info,
-                text="7 day 20mm: ")
+                text="7 day ave. @ 20mm: ")
             self.rightFrame.bottom.info.max720mmTitle.pack(padx=5,
                                                        pady=5,
                                                        side=ctk.TOP)
             
             self.rightFrame.bottom.info.max3SurfTitle = ctk.CTkLabel(
                 self.rightFrame.bottom.info,
-                text="3 day Surface: ")
+                text="3 day ave. @ Surface: ")
             self.rightFrame.bottom.info.max3SurfTitle.pack(padx=5,
                                                        pady=5,
                                                        side=ctk.TOP)
             
             self.rightFrame.bottom.info.max320mmTitle = ctk.CTkLabel(
                 self.rightFrame.bottom.info,
-                text="3 day 20mm: ")
+                text="3 day ave. @ 20mm: ")
             self.rightFrame.bottom.info.max320mmTitle.pack(padx=5,
                                                        pady=5,
                                                        side=ctk.TOP)
             
             self.rightFrame.bottom.info.max1SurfTitle = ctk.CTkLabel(
                 self.rightFrame.bottom.info,
-                text="1 day surface: ")
+                text="1 day max @ surface: ")
             self.rightFrame.bottom.info.max1SurfTitle.pack(padx=5,
                                                        pady=5,
                                                        side=ctk.TOP)
             
             self.rightFrame.bottom.info.max120mmTitle = ctk.CTkLabel(
                 self.rightFrame.bottom.info,
-                text="1 day 20mm: ")
+                text="1 day max @ 20mm: ")
             self.rightFrame.bottom.info.max120mmTitle.pack(padx=5,
                                                        pady=5,
                                                        side=ctk.TOP)
@@ -1601,7 +1604,7 @@ class MainApp(ctk.CTkFrame):
             
             self.rightFrame.bottom.info.min1Title = ctk.CTkLabel(
                 self.rightFrame.bottom.info,
-                text="1 day: ")
+                text="1 day @ surface: ")
             self.rightFrame.bottom.info.min1Title.pack(padx=5,
                                                        pady=5,
                                                        side=ctk.TOP)
@@ -1621,39 +1624,39 @@ class MainApp(ctk.CTkFrame):
                 
                 self.rightFrame.bottom.frame.maxSurf7 = ctk.CTkLabel(
                     self.rightFrame.bottom.frame,
-                    text=str(stclc.max7daySurf[i]))
+                    text="%.2f" % round(stclc.max7daySurf[i], 1))
                 self.rightFrame.bottom.frame.maxSurf7.pack(padx=5,
                                                            pady=5,
                                                            side=ctk.TOP)
                 self.rightFrame.bottom.frame.max20mm7 = ctk.CTkLabel(
                     self.rightFrame.bottom.frame,
-                    text=str(stclc.max7day20mm[i]))
+                    text="%.2f" % round(stclc.max7day20mm[i], 1))
                 self.rightFrame.bottom.frame.max20mm7.pack(padx=5,
                                                            pady=5,
                                                            side=ctk.TOP)
                 
                 self.rightFrame.bottom.frame.maxSurf3 = ctk.CTkLabel(
                     self.rightFrame.bottom.frame,
-                    text=str(stclc.max3daySurf[i]))
+                    text="%.2f" % round(stclc.max3daySurf[i], 1))
                 self.rightFrame.bottom.frame.maxSurf3.pack(padx=5,
                                                            pady=5,
                                                            side=ctk.TOP)
                 self.rightFrame.bottom.frame.max20mm3 = ctk.CTkLabel(
                     self.rightFrame.bottom.frame,
-                    text=str(stclc.max3day20mm[i]))
+                    text="%.2f" % round(stclc.max3day20mm[i], 1))
                 self.rightFrame.bottom.frame.max20mm3.pack(padx=5,
                                                            pady=5,
                                                            side=ctk.TOP)
                 
                 self.rightFrame.bottom.frame.maxSurf1 = ctk.CTkLabel(
                     self.rightFrame.bottom.frame,
-                    text=str(stclc.max1daySurf[i]))
+                    text="%.2f" % round(stclc.max1daySurf[i], 1))
                 self.rightFrame.bottom.frame.maxSurf1.pack(padx=5,
                                                            pady=5,
                                                            side=ctk.TOP)
                 self.rightFrame.bottom.frame.max20mm1 = ctk.CTkLabel(
                     self.rightFrame.bottom.frame,
-                    text=str(stclc.max1day20mm[i]))
+                    text="%.2f" % round(stclc.max1day20mm[i], 1))
                 self.rightFrame.bottom.frame.max20mm1.pack(padx=5,
                                                            pady=5,
                                                            side=ctk.TOP)
@@ -1667,7 +1670,7 @@ class MainApp(ctk.CTkFrame):
                 
                 self.rightFrame.bottom.frame.min = ctk.CTkLabel(
                     self.rightFrame.bottom.frame,
-                    text=str(stclc.min1daySurf[i]))
+                    text="%.2f" % round(stclc.min1daySurf[i], 1))
                 self.rightFrame.bottom.frame.min.pack(padx=5,
                                                       pady=5,
                                                       side=ctk.BOTTOM)

@@ -74,7 +74,7 @@ def run_calculations():
                     )
                 max1day20mmVals[year].append(max(values20mm))
                 max1daySurfVals[year].append(max(valuesSurf))
-                min1dayVals[year].append(min(values20mm))
+                min1dayVals[year].append(min(valuesSurf))
                 
             for i in range(0, 364):
                 # stop calculating 7 day at 360
@@ -106,7 +106,7 @@ def run_calculations():
                     )
                 max1day20mmVals[year].append(max(values20mm))
                 max1daySurfVals[year].append(max(valuesSurf))
-                min1dayVals[year].append(min(values20mm))
+                min1dayVals[year].append(min(valuesSurf))
                 
             for i in range(0, 363):
                 # stop calculating 7 day at 359
@@ -132,6 +132,6 @@ def run_calculations():
         max3daySurf[year] = max(max3daySurfVals[year])
         max1daySurf[year] = max(max1daySurfVals[year])
 
-        min1daySurf[year] = max(min1dayVals[year])
+        min1daySurf[year] = min(min1dayVals[year])
     
     return numYears
