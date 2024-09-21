@@ -21,6 +21,7 @@ max1daySurf = dict()
 
 min1daySurf = dict()
 
+
 def run_calculations():
     resultBook = xl.load_workbook(shared.proj_folder_long
                                   + "\\"
