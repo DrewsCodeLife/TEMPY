@@ -13,6 +13,8 @@ from tqdm import tqdm
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+import fips_processor as fp
+
 # "pcpn" = "precipitation" ???
 elements = [
     {"name": "maxt", "interval": "mly", "duration": "mly",
@@ -60,6 +62,8 @@ dataset = pd.DataFrame(columns=['county', 'month',
                                 'mint', 'maxt',
                                 'avgt', 'pcpn'])
 
+combined = []
+
 for i in range(len(newdata)):
     maxt = pd.DataFrame(newdata[i][1], index=['maxt']).transpose()
     avgt = pd.DataFrame(newdata[i][2], index=['avgt']).transpose()
@@ -68,9 +72,12 @@ for i in range(len(newdata)):
     combined_onemonth = pd.concat([maxt, avgt, mint, pcpn], axis=1)
     combined_onemonth.insert(0, 'month', newdata[i][0])
     combined_onemonth = combined_onemonth.reset_index().rename(
-        columns={'index': 'county'})
-    combined_onemonth
-    dataset = pd.concat([dataset, combined_onemonth])
-    print("loopin\'")
+        columns={'index': 'fips_id'})
+    combined_onemonth = combined_onemonth.merge(fp.county_df,
+                                                on='fips_id',
+                                                how='left')
+    combined.append(combined_onemonth)
+    print(i / len(newdata))
     
-
+dataset = pd.concat(combined, ignore_index=True)
+dataset.to_csv('projected_temps.csv', sep=',')
