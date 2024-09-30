@@ -56,13 +56,13 @@ def run_simulation(post_process, Ucode, solarFile=None, windFile=None, tempFile=
     # find environmental data, e.g T_air, from excel
 
     env_temp_data = xl.load_workbook(tempFile)
-    temp_sheet = env_temp_data['MERRA_TEMP_HOUR']
+    temp_sheet = env_temp_data[env_temp_data.sheetnames[0]]
 
     env_wind_data = xl.load_workbook(windFile)
-    wind_sheet = env_wind_data['MERRA_WIND_HOUR']
+    wind_sheet = env_wind_data[env_wind_data.sheetnames[0]]
 
     env_solar_data = xl.load_workbook(solarFile)
-    solar_sheet = env_solar_data['MERRA_SOLAR_HOUR']
+    solar_sheet = env_solar_data[env_solar_data.sheetnames[0]]
 
 
     # Define model constant
